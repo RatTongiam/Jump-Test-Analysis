@@ -3,242 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUMPANZ V1 - Prima Motion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <title>Prima Motion Analytics - High Performance</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: 'Josefin Sans', sans-serif; background-color: #efebe2; color: #4d2994; }
-        .brand-text { color: #4d2994; font-weight: 700; text-transform: uppercase; }
-        .bg-primary { background-color: #4d2994; }
-        .bg-accent { background-color: #D0c3f1; }
-        .border-primary { border-color: #4d2994; }
-        
-        /* Vintage Meter Styles */
-        .meter-container { position: relative; width: 200px; height: 100px; overflow: hidden; margin: 0 auto; }
-        .meter-bg { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #4d2994; background: #fff; position: absolute; top: 0; box-shadow: inset 0 0 15px rgba(0,0,0,0.1); }
-        .meter-needle { width: 4px; height: 90px; background: #e63946; position: absolute; bottom: 0; left: 98px; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; border-radius: 2px; }
-        .meter-center { width: 16px; height: 16px; background: #4d2994; border-radius: 50%; position: absolute; bottom: -8px; left: 92px; z-index: 11; }
-        .meter-label { position: absolute; width: 100%; text-align: center; bottom: 5px; font-size: 10px; font-weight: bold; color: #4d2994; opacity: 0.7; }
-    </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="bg-slate-50 min-h-screen">
 
-    <div class="max-w-7xl mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b-4 border-primary pb-4">
-            <div class="text-center md:text-left">
-                <h1 class="text-5xl brand-text tracking-tighter">JUMPANZ <span class="text-2xl opacity-70 italic">V1</span></h1>
-                <p class="text-xs font-bold tracking-[0.3em] mt-1">PRIMA MOTION BIOMECHANICS LAB</p>
-            </div>
-            
-            <div class="mt-4 md:mt-0 text-center">
-                <div class="meter-container">
-                    <div class="meter-bg"></div>
-                    <div id="needle" class="meter-needle"></div>
-                    <div class="meter-center"></div>
+    <div class="max-w-6xl mx-auto py-6 px-4">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+            <header class="bg-gradient-to-r from-blue-900 to-slate-800 p-6 text-white flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight">PRIMA MOTION</h1>
+                    <p class="text-blue-300 text-xs font-bold uppercase tracking-widest">Biomechanics Analysis Platform</p>
                 </div>
-                <p id="statusText" class="text-[10px] font-bold uppercase mt-1">System Standby</p>
-            </div>
-        </header>
+                <div id="statusIcon" class="hidden">
+                    <span class="flex h-3 w-3 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                </div>
+            </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <aside class="space-y-6">
-                <div class="bg-accent p-6 rounded-3xl shadow-xl border-2 border-primary">
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <div class="space-y-6">
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase mb-2">Smoothing Profile</label>
-                            <select id="filterSize" class="w-full p-3 bg-white border-2 border-primary rounded-xl font-bold outline-none">
-                                <option value="1">Raw (Raw Data)</option>
-                                <option value="7">Soft (Light Fix)</option>
-                                <option value="15" selected>Medium (Standard)</option>
-                                <option value="31">Hard (High Artifacts)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase mb-2">Test Protocol</label>
-                            <select id="analysisType" class="w-full p-3 bg-white border-2 border-primary rounded-xl font-bold">
-                                <option value="CMJ">Countermovement Jump</option>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-black text-slate-700 mb-2">TEST TYPE</label>
+                            <select id="analysisType" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="CMJ">Countermovement Jump (CMJ)</option>
                                 <option value="DJ">Drop Jump (DJ)</option>
                             </select>
                         </div>
-                        <div class="pt-2">
-                            <label class="block text-center bg-primary text-white font-bold py-3 rounded-xl cursor-pointer hover:opacity-90 transition-all">
-                                LOAD CSV DATA
-                                <input type="file" id="fileInput" accept=".csv" class="hidden">
-                            </label>
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-black text-slate-700 mb-2">UPLOAD CSV</label>
+                            <input type="file" id="fileInput" accept=".csv" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-black file:bg-blue-900 file:text-white hover:file:bg-blue-800 cursor-pointer">
+                            <p id="status" class="mt-3 text-[10px] font-black uppercase text-slate-400"></p>
+                        </div>
+                    </div>
+                    
+                    <button id="exportBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-1 hidden">
+                        EXPORT CSV REPORT
+                    </button>
+                </div>
+
+                <div class="lg:col-span-3 space-y-6">
+                    <div id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm relative">
+                        <div id="chart" class="w-full h-[500px]"></div>
+                        <div id="loadingOverlay" class="absolute inset-0 bg-white/80 flex items-center justify-center hidden">
+                            <p class="font-black text-blue-900 animate-pulse">ANALYZING DATA...</p>
                         </div>
                     </div>
                 </div>
-                
-                <button id="exportBtn" class="w-full border-4 border-emerald-600 text-emerald-600 font-bold py-4 rounded-3xl hover:bg-emerald-600 hover:text-white transition-all hidden uppercase tracking-widest">
-                    Export Analysis
-                </button>
-            </aside>
-
-            <main class="lg:col-span-3 space-y-6">
-                <div id="metrics" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    </div>
-
-                <div class="bg-white border-4 border-primary rounded-3xl p-4 shadow-2xl space-y-4">
-                    <div id="forceChart" class="w-full h-[400px]"></div>
-                    <div class="h-1 bg-accent mx-10 rounded-full"></div>
-                    <div id="deficitChart" class="w-full h-[250px]"></div>
-                </div>
-            </main>
+            </div>
         </div>
     </div>
 
     <script>
         const regex = /(-?\d+\.\d+)/;
-        let globalRaw = [];
-        const needle = document.getElementById('needle');
-        const statusText = document.getElementById('statusText');
+        let finalData = [];
 
-        function setMeter(percent, text) {
-            const angle = -90 + (percent * 1.8); // -90 to 90 degrees
-            needle.style.transform = `rotate(${angle}deg)`;
-            statusText.innerText = text;
-        }
-
-        function parseForce(v) {
-            if(!v) return null;
-            const parts = v.toString().trim().split(/\s+/);
-            const target = parts[parts.length - 1];
-            const m = target.match(regex);
-            return m ? parseFloat(m[1]) : null;
-        }
-
-        function movingAverage(d, s) {
-            if (s <= 1) return d;
-            let res = [], h = Math.floor(s/2);
-            for(let i=0; i<d.length; i++){
-                let start = Math.max(0, i-h), end = Math.min(d.length, i+h+1);
-                let sum = 0; for(let j=start; j<end; j++) sum += d[j];
-                res.push(sum/(end-start));
+        function cleanValue(val) {
+            if (typeof val === 'number') return val;
+            if (!val) return null;
+            const s = val.toString().trim();
+            if (!s.includes(' ')) {
+                const n = parseFloat(s);
+                return isNaN(n) ? null : n;
             }
-            return res;
+            const parts = s.split(/\s+/);
+            const match = parts[parts.length - 1].match(regex);
+            return match ? parseFloat(match[1]) : null;
         }
 
-        document.getElementById('fileInput').addEventListener('change', e => {
-            const f = e.target.files[0];
-            if(!f) return;
-            
-            setMeter(20, "Reading File...");
-            
-            Papa.parse(f, {
-                header: true, skipEmptyLines: true,
-                complete: r => {
-                    globalRaw = r.data;
-                    setMeter(50, "Data Parsed");
-                    setTimeout(runAnalysis, 300);
-                }
-            });
-        });
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        document.getElementById('filterSize').addEventListener('change', runAnalysis);
+            const status = document.getElementById('status');
+            const overlay = document.getElementById('loadingOverlay');
+            status.innerText = "Processing...";
+            overlay.classList.remove('hidden');
 
-        function runAnalysis() {
-            if(!globalRaw.length) return;
-            try {
-                setMeter(75, "Analyzing Phases...");
-                const fSize = parseInt(document.getElementById('filterSize').value);
-                
-                let t=[], f=[], l=[], r=[];
-                globalRaw.forEach(row => {
-                    let force = parseForce(row['force ']), left = parseForce(row['left force']), right = parseForce(row['right force']), time = parseFloat(row['time']);
-                    if(!isNaN(time)) { 
-                        t.push(time); 
-                        f.push(force || (left + (right || 0))); 
-                        l.push(left || 0); 
-                        r.push(right || 0); 
+            // ใช้ setTimeout เพื่อให้ UI เปลี่ยนตัวหนังสือก่อนเริ่มประมวลผลหนักๆ
+            setTimeout(() => {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const t0 = performance.now();
+                        runAnalysis(results.data);
+                        const t1 = performance.now();
+                        status.innerText = `Done in ${(t1 - t0).toFixed(0)}ms`;
+                        overlay.classList.add('hidden');
+                        document.getElementById('statusIcon').classList.remove('hidden');
                     }
                 });
+            }, 50);
+        });
 
-                if(t.length < 10) throw new Error("Data too short");
+        function runAnalysis(data) {
+            const cleanData = [];
+            let maxF = 0;
+            
+            // Single pass loop for speed
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                let f = cleanValue(row['force ']);
+                let l = cleanValue(row['left force']);
+                let r = cleanValue(row['right force']);
+                const t = parseFloat(row['time']);
 
-                const sf = movingAverage(f, fSize), sl = movingAverage(l, fSize), sr = movingAverage(r, fSize);
-                const g = 9.80665, dt = t[1]-t[0];
-                const bw = sf.slice(0, 500).reduce((a,b)=>a+b,0)/500;
-                const mass = bw/g;
+                if (isNaN(t)) continue;
 
-                // Detect Phases
-                let sIdx = sf.findIndex(v => Math.abs(v-bw) > 20);
-                let tIdx = sf.findIndex((v,i) => i > sIdx && v < 25);
-                
-                let v=0, maxV=0, vArr = [];
-                for(let i=0; i<sf.length; i++) {
-                    if(i >= sIdx && i <= tIdx) v += ((sf[i]-bw)/mass) * dt;
-                    else v = 0;
-                    vArr.push(v);
-                    if(v > maxV) maxV = v;
+                // Fast repair
+                if (f === null && l !== null && r !== null) f = l + r;
+                else if (l === null && f !== null && r !== null) l = f - r;
+                else if (r === null && f !== null && l !== null) r = f - l;
+
+                if (f !== null) {
+                    if (f > maxF) maxF = f;
+                    cleanData.push({ t, f, l, r });
                 }
-
-                let zeroVIdx = sIdx;
-                for(let i=sIdx; i<tIdx; i++) {
-                    if(i > sIdx && vArr[i-1] < 0 && vArr[i] >= 0) { zeroVIdx = i; break; }
-                }
-
-                // Metrics
-                const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
-                const peakP = Math.max(...sf.map((f,i) => f * Math.abs(vArr[i])));
-                const ct = t[tIdx] - t[sIdx];
-                const rsi = (jh/100) / ct;
-
-                updateUI([
-                    { label: "Jump Height", val: jh.toFixed(1) + " cm" },
-                    { label: "Peak Force", val: Math.max(...sf).toFixed(0) + " N" },
-                    { label: "Peak Power", val: peakP.toFixed(0) + " W" },
-                    { label: "RSI-Modified", val: rsi.toFixed(3) },
-                    { label: "Body Weight", val: (bw/g).toFixed(1) + " kg" },
-                    { label: "Contraction", val: ct.toFixed(2) + " s" }
-                ]);
-
-                // Deficit Mapping
-                let defs = sf.map((v,i) => v < 50 ? 0 : ((sl[i]-sr[i])/Math.max(sl[i],sr[i]))*100);
-
-                // Graphs
-                Plotly.newPlot('forceChart', [
-                    { x:t, y:sl, name:'Left', type:'scattergl', line:{color:'#3b82f6', width:1.5} },
-                    { x:t, y:sr, name:'Right', type:'scattergl', line:{color:'#ef4444', width:1.5} },
-                    { x:t, y:sf, name:'Total', type:'scattergl', line:{color:'#4d2994', width:3} }
-                ], { 
-                    margin:{t:30, b:20, l:50, r:10}, hovermode:'x unified', 
-                    xaxis:{showticklabels:false}, yaxis:{title:'Force (N)'},
-                    shapes: [
-                        { type:'rect', x0:t[sIdx], x1:t[zeroVIdx], y0:0, y1:Math.max(...sf)*1.1, fillcolor:'rgba(77, 41, 148, 0.05)', line:{width:0} },
-                        { type:'rect', x0:t[zeroVIdx], x1:t[tIdx], y0:0, y1:Math.max(...sf)*1.1, fillcolor:'rgba(34, 197, 94, 0.05)', line:{width:0} }
-                    ],
-                    annotations: [
-                        { x:t[sIdx], y:bw, text:'ECC', showarrow:false, font:{size:10, color:'#4d2994'} },
-                        { x:t[zeroVIdx], y:bw, text:'CON', showarrow:false, font:{size:10, color:'#22c55e'} }
-                    ]
-                }, {responsive: true});
-
-                Plotly.newPlot('deficitChart', [
-                    { x:t, y:defs, name:'Deficit', type:'scattergl', line:{color:'#4d2994', width:2} }
-                ], { 
-                    margin:{t:10, b:40, l:50, r:10}, hovermode:'x unified',
-                    xaxis:{title:'Time (s)'}, yaxis:{title:'Deficit (%)', range:[-40, 40], zeroline:true}
-                }, {responsive: true});
-
-                setMeter(100, "Analysis Complete");
-                document.getElementById('exportBtn').classList.remove('hidden');
-
-            } catch (err) {
-                console.error(err);
-                setMeter(0, "Error Occurred");
-                alert("เกิดข้อผิดพลาดในการรันไฟล์: " + err.message);
             }
+
+            if (cleanData.length < 10) return;
+
+            // VALD Core Logic
+            const g = 9.80665;
+            const dt = cleanData[1].t - cleanData[0].t;
+            const bw = cleanData.slice(0, 500).reduce((s, d) => s + d.f, 0) / 500;
+            const mass = bw / g;
+
+            // Find key phases
+            let startIdx = 0, takeoffIdx = cleanData.length - 1;
+            for(let i = 0; i < cleanData.length; i++) {
+                if (Math.abs(cleanData[i].f - bw) > 25) { startIdx = i; break; }
+            }
+            for(let i = startIdx; i < cleanData.length; i++) {
+                if (cleanData[i].f < 25) { takeoffIdx = i; break; }
+            }
+
+            // Velocity integration
+            let v = 0, maxV = 0;
+            for(let i = startIdx; i <= takeoffIdx; i++) {
+                v += ((cleanData[i].f - bw) / mass) * dt;
+                if (v > maxV) maxV = v;
+            }
+
+            const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
+            const ct = cleanData[takeoffIdx].t - cleanData[startIdx].t;
+
+            // UI Update
+            updateUI([
+                { label: "Jump Height", val: jh.toFixed(1) + " cm" },
+                { label: "Peak Force", val: maxF.toFixed(0) + " N" },
+                { label: "Body Mass", val: (bw/g).toFixed(1) + " kg" },
+                { label: "Contraction", val: ct.toFixed(2) + " s" }
+            ]);
+
+            // Chart - Using Scatter for better interactivity
+            Plotly.newPlot('chart', [
+                { x: cleanData.map(d=>d.t), y: cleanData.map(d=>d.f), name: 'Total', line: {color: '#0f172a', width: 3} },
+                { x: cleanData.map(d=>d.t), y: cleanData.map(d=>d.l), name: 'Left', line: {color: '#3b82f6', width: 1} },
+                { x: cleanData.map(d=>d.t), y: cleanData.map(d=>d.r), name: 'Right', line: {color: '#ef4444', width: 1} }
+            ], {
+                margin: { t: 20, b: 40, l: 50, r: 20 },
+                xaxis: { title: 'Time (s)', gridcolor: '#f1f5f9' },
+                yaxis: { title: 'Force (N)', gridcolor: '#f1f5f9' },
+                hovermode: 'x unified',
+                plot_bgcolor: 'white'
+            }, {responsive: true});
+
+            const btn = document.getElementById('exportBtn');
+            btn.classList.remove('hidden');
+            finalData = [["Metric","Value"], ["Jump Height (cm)",jh.toFixed(2)], ["Peak Force (N)",maxF.toFixed(2)]];
         }
 
-        function updateUI(m) {
-            document.getElementById('metrics').innerHTML = m.map(i => `
-                <div class="bg-accent border-2 border-primary p-4 rounded-3xl text-center shadow-lg">
-                    <p class="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-1">${i.label}</p>
-                    <p class="text-xl font-bold">${i.val}</p>
-                </div>`).join('');
+        function updateUI(metrics) {
+            const container = document.getElementById('metrics');
+            container.innerHTML = metrics.map(m => `
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm text-center">
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">${m.label}</p>
+                    <p class="text-2xl font-black text-slate-800">${m.val}</p>
+                </div>
+            `).join('');
         }
+
+        document.getElementById('exportBtn').onclick = () => {
+            const csv = "data:text/csv;charset=utf-8," + finalData.map(e => e.join(",")).join("\n");
+            const link = document.createElement("a");
+            link.href = encodeURI(csv);
+            link.download = "Prima_Motion_Report.csv";
+            link.click();
+        };
     </script>
 </body>
 </html>
