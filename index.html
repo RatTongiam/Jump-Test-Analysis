@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUMPANZ V1.2 - Prima Motion PRO</title>
+    <title>JUMPANZ V1.2 PRO - Prima Motion</title>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Josefin Sans', sans-serif; background-color: #efebe2; color: #4d2994; }
+        body { font-family: 'Josefin Sans', sans-serif; background-color: #efebe2; color: #4d2994; margin: 0; padding: 0; }
         .brand-text { color: #4d2994; font-weight: 700; text-transform: uppercase; }
         .bg-primary { background-color: #4d2994; }
         .bg-accent { background-color: #D0c3f1; }
@@ -22,12 +22,12 @@
         .meter-center { width: 12px; height: 12px; background: #4d2994; border-radius: 50%; position: absolute; bottom: -6px; left: 74px; z-index: 11; }
     </style>
 </head>
-<body class="p-4 md:p-6">
+<body class="p-4 md:p-6 lg:p-8">
 
     <div class="max-w-7xl mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-4 border-primary pb-4">
             <div class="text-center md:text-left">
-                <h1 class="text-4xl brand-text tracking-tighter">JUMPANZ <span class="text-xl opacity-60 italic">V1.2 PRO</span></h1>
+                <h1 class="text-4xl lg:text-5xl brand-text tracking-tighter">JUMPANZ <span class="text-xl lg:text-2xl opacity-60 italic">V1.2 PRO</span></h1>
                 <p class="text-[10px] font-bold tracking-[0.3em] mt-1">PRIMA MOTION BIOMECHANICS ANALYTICS</p>
             </div>
             
@@ -37,22 +37,24 @@
                     <div id="needle" class="meter-needle"></div>
                     <div class="meter-center"></div>
                 </div>
-                <p id="statusText" class="text-[9px] font-bold uppercase mt-1">Ready for Data</p>
+                <p id="statusText" class="text-[9px] font-bold uppercase mt-1">System Ready</p>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <aside class="space-y-4">
-                <div class="bg-accent p-5 rounded-3xl shadow-xl border-2 border-primary space-y-4">
+                <div class="bg-accent p-6 rounded-[2rem] shadow-xl border-2 border-primary space-y-5">
                     <div>
-                        <label class="block text-[11px] font-bold uppercase mb-2">1. Load Force Data</label>
-                        <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-full file:bg-primary file:text-white file:font-bold cursor-pointer shadow-sm">
+                        <label class="block text-center bg-primary text-white font-bold py-3 rounded-xl cursor-pointer hover:opacity-90 transition-all text-xs tracking-widest uppercase">
+                            Load CSV Data
+                            <input type="file" id="fileInput" accept=".csv" class="hidden">
+                        </label>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[10px] font-bold uppercase mb-1">Smooth</label>
-                            <select id="filterSize" class="w-full p-2 bg-white border border-primary rounded-lg text-xs font-bold">
+                            <select id="filterSize" class="w-full p-2.5 bg-white border border-primary rounded-xl text-xs font-bold outline-none">
                                 <option value="1">Raw</option>
                                 <option value="7">Soft</option>
                                 <option value="15" selected>Medium</option>
@@ -61,47 +63,47 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase mb-1">Deficit %</label>
-                            <input type="number" id="threshold" value="15" class="w-full p-2 border border-primary rounded-lg text-xs font-bold text-center">
+                            <input type="number" id="threshold" value="15" class="w-full p-2.5 border border-primary rounded-xl text-xs font-bold text-center outline-none">
                         </div>
                     </div>
 
                     <div class="h-px bg-primary/20"></div>
 
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-bold uppercase text-primary italic underline">Manual Phase Editor (sec)</label>
-                        <div class="grid grid-cols-3 gap-1">
-                            <div>
-                                <span class="text-[8px] font-bold opacity-70">START</span>
-                                <input type="number" id="manualStart" step="0.01" class="w-full p-1 border border-primary rounded text-xs font-bold bg-white">
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-bold uppercase text-primary italic underline tracking-wider">Manual Phase Editor (sec)</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-bold opacity-70 uppercase">Start</span>
+                                <input type="number" id="manualStart" step="0.001" class="w-24 p-1.5 border border-primary rounded-lg text-xs font-bold bg-white text-center">
                             </div>
-                            <div>
-                                <span class="text-[8px] font-bold opacity-70">V=0 (Split)</span>
-                                <input type="number" id="manualSplit" step="0.01" class="w-full p-1 border border-primary rounded text-xs font-bold bg-white">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-bold opacity-70 uppercase">V=0 (Split)</span>
+                                <input type="number" id="manualSplit" step="0.001" class="w-24 p-1.5 border border-primary rounded-lg text-xs font-bold bg-white text-center">
                             </div>
-                            <div>
-                                <span class="text-[8px] font-bold opacity-70">TAKE-OFF</span>
-                                <input type="number" id="manualEnd" step="0.01" class="w-full p-1 border border-primary rounded text-xs font-bold bg-white">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-bold opacity-70 uppercase">Take-off</span>
+                                <input type="number" id="manualEnd" step="0.001" class="w-24 p-1.5 border border-primary rounded-lg text-xs font-bold bg-white text-center">
                             </div>
                         </div>
-                        <button id="reprocessBtn" class="w-full bg-primary text-white text-[11px] font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md">
+                        <button id="reprocessBtn" class="w-full bg-primary text-white text-[11px] font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md mt-2">
                             RE-PROCESS ANALYSIS
                         </button>
                     </div>
                 </div>
                 
-                <button id="exportBtn" class="w-full border-4 border-emerald-600 text-emerald-600 font-bold py-3 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all hidden text-xs uppercase tracking-widest">
-                    Download Report
+                <button id="exportBtn" class="w-full border-4 border-emerald-600 text-emerald-600 font-bold py-4 rounded-[2rem] hover:bg-emerald-600 hover:text-white transition-all hidden text-xs uppercase tracking-widest shadow-lg">
+                    Download Analysis
                 </button>
             </aside>
 
-            <main class="lg:col-span-3 space-y-4">
+            <main class="lg:col-span-3 space-y-4 pb-12">
                 <div id="metrics" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                     </div>
 
-                <div class="bg-white border-4 border-primary rounded-3xl p-3 shadow-2xl space-y-4">
-                    <div id="forceChart" class="w-full h-[360px]"></div>
-                    <div class="h-1 bg-accent mx-8 rounded-full"></div>
-                    <div id="deficitChart" class="w-full h-[240px]"></div>
+                <div class="bg-white border-4 border-primary rounded-[2.5rem] p-4 shadow-2xl space-y-4">
+                    <div id="forceChart" class="w-full h-[380px]"></div>
+                    <div class="h-1 bg-accent mx-10 rounded-full opacity-50"></div>
+                    <div id="deficitChart" class="w-full h-[260px]"></div>
                 </div>
             </main>
         </div>
@@ -110,6 +112,7 @@
     <script>
         const regex = /(-?\d+\.\d+)/;
         let rawData = [];
+        let summaryMetrics = [];
         const needle = document.getElementById('needle');
         const statusText = document.getElementById('statusText');
 
@@ -119,7 +122,6 @@
             statusText.innerText = text;
         }
 
-        // ฟังก์ชันล้างข้อมูล (Fix 51kN)
         function cleanValue(val) {
             if (val === null || val === undefined) return null;
             let s = val.toString().trim();
@@ -128,7 +130,7 @@
             let match = target.match(regex);
             if (match) {
                 let num = parseFloat(match[1]);
-                return Math.abs(num) < 8000 ? num : null;
+                return Math.abs(num) < 10000 ? num : null;
             }
             return null;
         }
@@ -147,13 +149,13 @@
         document.getElementById('fileInput').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
-            updateMeter(30, "Parsing File...");
+            updateMeter(20, "Reading CSV...");
             Papa.parse(file, {
                 header: true, skipEmptyLines: true,
                 complete: function(results) {
                     rawData = results.data;
-                    updateMeter(60, "Loaded");
-                    processBiomechanics(true); // Auto-detect on first load
+                    updateMeter(50, "Data Parsed");
+                    processBiomechanics(true);
                 }
             });
         });
@@ -162,14 +164,13 @@
 
         function processBiomechanics(isAuto) {
             if (rawData.length === 0) return;
-            updateMeter(80, "Analysing...");
+            updateMeter(75, "Analysing...");
 
             const filterSize = parseInt(document.getElementById('filterSize').value);
             const threshold = parseFloat(document.getElementById('threshold').value);
             
             let t = [], f = [], l = [], r = [];
             
-            // 1. Data Cleaning & Extraction
             rawData.forEach(row => {
                 let total = cleanValue(row['force ']);
                 let left = cleanValue(row['left force']);
@@ -177,59 +178,42 @@
                 let time = parseFloat(row['time']);
 
                 if (!isNaN(time)) {
-                    // Repair logic
                     if (total === null && left !== null && right !== null) total = left + right;
                     if (left === null && total !== null && right !== null) left = total - right;
                     if (right === null && total !== null && left !== null) right = total - left;
-
-                    t.push(time);
-                    f.push(total);
-                    l.push(left || 0);
-                    r.push(right || 0);
+                    t.push(time); f.push(total); l.push(left || 0); r.push(right || 0);
                 }
             });
 
-            // 2. Smoothing
             const sf = movingAverage(f, filterSize);
             const sl = movingAverage(l, filterSize);
             const sr = movingAverage(r, filterSize);
-
-            // 3. Phase Detection (VALD Standard)
-            const g = 9.80665;
-            const dt = t[1] - t[0];
+            const g = 9.80665, dt = t[1] - t[0];
             const bw = sf.slice(0, 500).reduce((a, b) => a + b, 0) / 500;
             const mass = bw / g;
 
             let sIdx, zIdx, tIdx;
 
             if (isAuto) {
-                // Auto-detection logic
-                sIdx = sf.findIndex(v => Math.abs(v - bw) > 20); // SOM
-                tIdx = sf.findIndex((v, i) => i > sIdx && v < 25); // Take-off
-
-                // Find Zero Velocity (Split Ecc/Con)
+                sIdx = sf.findIndex(v => Math.abs(v - bw) > 25);
+                tIdx = sf.findIndex((v, i) => i > sIdx && v < 30);
                 let v = 0, vArr = [];
                 for (let i = 0; i < sf.length; i++) {
                     v = (i >= sIdx && i <= tIdx) ? v + ((sf[i] - bw) / mass) * dt : 0;
                     vArr.push(v);
                 }
                 zIdx = sIdx;
-                for (let i = sIdx; i < tIdx; i++) {
-                    if (i > sIdx && vArr[i - 1] < 0 && vArr[i] >= 0) { zIdx = i; break; }
-                }
-
-                // Update Manual Inputs
+                for (let i = sIdx; i < tIdx; i++) if (vArr[i-1] < 0 && vArr[i] >= 0) { zIdx = i; break; }
+                
                 document.getElementById('manualStart').value = t[sIdx].toFixed(3);
                 document.getElementById('manualSplit').value = t[zIdx].toFixed(3);
                 document.getElementById('manualEnd').value = t[tIdx].toFixed(3);
             } else {
-                // Use Manual Inputs
                 sIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualStart').value));
                 zIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualSplit').value));
                 tIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualEnd').value));
             }
 
-            // 4. Calculations
             let curV = 0, maxV = 0, pwrMax = 0;
             for (let i = sIdx; i <= tIdx; i++) {
                 curV += ((sf[i] - bw) / mass) * dt;
@@ -242,23 +226,19 @@
             const ct = t[tIdx] - t[sIdx];
             const rsi = (jh / 100) / ct;
 
-            updateMetricsUI([
+            summaryMetrics = [
                 { label: "Jump Height", val: jh.toFixed(1) + " cm" },
                 { label: "Peak Force", val: Math.max(...sf).toFixed(0) + " N" },
                 { label: "Peak Power", val: pwrMax.toFixed(0) + " W" },
                 { label: "RSI-Mod", val: rsi.toFixed(3) },
                 { label: "Body Mass", val: (mass).toFixed(1) + " kg" },
                 { label: "Contract", val: ct.toFixed(2) + " s" }
-            ]);
+            ];
+            updateMetricsUI(summaryMetrics);
 
-            // 5. Deficit Logic
-            const deficits = sf.map((v, i) => {
-                if (v < 50) return 0;
-                return ((sl[i] - sr[i]) / Math.max(sl[i], sr[i])) * 100;
-            });
+            const deficits = sf.map((v, i) => v < 50 ? 0 : ((sl[i] - sr[i]) / Math.max(sl[i], sr[i])) * 100);
 
-            // 6. Visualisation
-            // Chart 1: Force Trace with Phase Shading
+            // Chart 1: Force Trace
             Plotly.newPlot('forceChart', [
                 { x: t, y: sl, name: 'Left', type: 'scattergl', line: { color: '#3b82f6', width: 1.5 } },
                 { x: t, y: sr, name: 'Right', type: 'scattergl', line: { color: '#ef4444', width: 1.5 } },
@@ -268,9 +248,7 @@
                 xaxis: { title: 'Time (s)', gridcolor: '#eee' },
                 yaxis: { title: 'Force (N)', gridcolor: '#eee' },
                 shapes: [
-                    // Eccentric Shading
                     { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: Math.max(...sf) * 1.1, fillcolor: 'rgba(77, 41, 148, 0.1)', line: { width: 0 } },
-                    // Concentric Shading
                     { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: Math.max(...sf) * 1.1, fillcolor: 'rgba(34, 197, 94, 0.1)', line: { width: 0 } }
                 ],
                 annotations: [
@@ -279,7 +257,7 @@
                 ]
             }, { responsive: true });
 
-            // Chart 2: Deficit with Margin Highlight
+            // Chart 2: Deficit Mapping
             Plotly.newPlot('deficitChart', [
                 { x: t, y: deficits, name: 'Deficit %', type: 'scattergl', line: { color: '#4d2994', width: 2 } }
             ], {
@@ -287,7 +265,6 @@
                 xaxis: { title: 'Time (s)', gridcolor: '#eee' },
                 yaxis: { title: 'Deficit (%)', range: [-50, 50], zeroline: true, zerolinecolor: '#4d2994', zerolinewidth: 2 },
                 shapes: [
-                    // Deficit Safe Zone (Green Band)
                     { type: 'rect', x0: t[0], x1: t[t.length - 1], y0: -threshold, y1: threshold, fillcolor: 'rgba(34, 197, 94, 0.15)', line: { width: 0 } }
                 ]
             }, { responsive: true });
@@ -304,173 +281,22 @@
                     <p class="text-sm font-bold text-primary">${i.val}</p>
                 </div>`).join('');
         }
-    </script>
-</body>
-</html>                        </div>
 
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <label class="block text-sm font-black text-slate-700 mb-2">UPLOAD CSV</label>
-                            <input type="file" id="fileInput" accept=".csv" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-black file:bg-blue-900 file:text-white hover:file:bg-blue-800 cursor-pointer">
-                            <p id="status" class="mt-3 text-[10px] font-black uppercase text-slate-400"></p>
-                        </div>
-                    </div>
-                    
-                    <button id="exportBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-1 hidden">
-                        EXPORT CSV REPORT
-                    </button>
-                </div>
-
-                <div class="lg:col-span-3 space-y-6">
-                    <div id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        </div>
-                    <div class="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm relative">
-                        <div id="chart" class="w-full h-[500px]"></div>
-                        <div id="loadingOverlay" class="absolute inset-0 bg-white/80 flex items-center justify-center hidden">
-                            <p class="font-black text-blue-900 animate-pulse">ANALYZING DATA...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const regex = /(-?\d+\.\d+)/;
-        let finalData = [];
-
-        function cleanValue(val) {
-            if (typeof val === 'number') return val;
-            if (!val) return null;
-            const s = val.toString().trim();
-            if (!s.includes(' ')) {
-                const n = parseFloat(s);
-                return isNaN(n) ? null : n;
-            }
-            const parts = s.split(/\s+/);
-            const match = parts[parts.length - 1].match(regex);
-            return match ? parseFloat(match[1]) : null;
-        }
-
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const status = document.getElementById('status');
-            const overlay = document.getElementById('loadingOverlay');
-            status.innerText = "Processing...";
-            overlay.classList.remove('hidden');
-
-            // ใช้ setTimeout เพื่อให้ UI เปลี่ยนตัวหนังสือก่อนเริ่มประมวลผลหนักๆ
-            setTimeout(() => {
-                Papa.parse(file, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        const t0 = performance.now();
-                        runAnalysis(results.data);
-                        const t1 = performance.now();
-                        status.innerText = `Done in ${(t1 - t0).toFixed(0)}ms`;
-                        overlay.classList.add('hidden');
-                        document.getElementById('statusIcon').classList.remove('hidden');
-                    }
-                });
-            }, 50);
-        });
-
-        function runAnalysis(data) {
-            const cleanData = [];
-            let maxF = 0;
-            
-            // Single pass loop for speed
-            for (let i = 0; i < data.length; i++) {
-                const row = data[i];
-                let f = cleanValue(row['force ']);
-                let l = cleanValue(row['left force']);
-                let r = cleanValue(row['right force']);
-                const t = parseFloat(row['time']);
-
-                if (isNaN(t)) continue;
-
-                // Fast repair
-                if (f === null && l !== null && r !== null) f = l + r;
-                else if (l === null && f !== null && r !== null) l = f - r;
-                else if (r === null && f !== null && l !== null) r = f - l;
-
-                if (f !== null) {
-                    if (f > maxF) maxF = f;
-                    cleanData.push({ t, f, l, r });
-                }
-            }
-
-            if (cleanData.length < 10) return;
-
-            // VALD Core Logic
-            const g = 9.80665;
-            const dt = cleanData[1].t - cleanData[0].t;
-            const bw = cleanData.slice(0, 500).reduce((s, d) => s + d.f, 0) / 500;
-            const mass = bw / g;
-
-            // Find key phases
-            let startIdx = 0, takeoffIdx = cleanData.length - 1;
-            for(let i = 0; i < cleanData.length; i++) {
-                if (Math.abs(cleanData[i].f - bw) > 25) { startIdx = i; break; }
-            }
-            for(let i = startIdx; i < cleanData.length; i++) {
-                if (cleanData[i].f < 25) { takeoffIdx = i; break; }
-            }
-
-            // Velocity integration
-            let v = 0, maxV = 0;
-            for(let i = startIdx; i <= takeoffIdx; i++) {
-                v += ((cleanData[i].f - bw) / mass) * dt;
-                if (v > maxV) maxV = v;
-            }
-
-            const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
-            const ct = cleanData[takeoffIdx].t - cleanData[startIdx].t;
-
-            // UI Update
-            updateUI([
-                { label: "Jump Height", val: jh.toFixed(1) + " cm" },
-                { label: "Peak Force", val: maxF.toFixed(0) + " N" },
-                { label: "Body Mass", val: (bw/g).toFixed(1) + " kg" },
-                { label: "Contraction", val: ct.toFixed(2) + " s" }
-            ]);
-
-            // Chart - Using Scatter for better interactivity
-            Plotly.newPlot('chart', [
-                { x: cleanData.map(d=>d.t), y: cleanData.map(d=>d.f), name: 'Total', line: {color: '#0f172a', width: 3} },
-                { x: cleanData.map(d=>d.t), y: cleanData.map(d=>d.l), name: 'Left', line: {color: '#3b82f6', width: 1} },
-                { x: cleanData.map(d=>d.t), y: cleanData.map(d=>d.r), name: 'Right', line: {color: '#ef4444', width: 1} }
-            ], {
-                margin: { t: 20, b: 40, l: 50, r: 20 },
-                xaxis: { title: 'Time (s)', gridcolor: '#f1f5f9' },
-                yaxis: { title: 'Force (N)', gridcolor: '#f1f5f9' },
-                hovermode: 'x unified',
-                plot_bgcolor: 'white'
-            }, {responsive: true});
-
-            const btn = document.getElementById('exportBtn');
-            btn.classList.remove('hidden');
-            finalData = [["Metric","Value"], ["Jump Height (cm)",jh.toFixed(2)], ["Peak Force (N)",maxF.toFixed(2)]];
-        }
-
-        function updateUI(metrics) {
-            const container = document.getElementById('metrics');
-            container.innerHTML = metrics.map(m => `
-                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm text-center">
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">${m.label}</p>
-                    <p class="text-2xl font-black text-slate-800">${m.val}</p>
-                </div>
-            `).join('');
-        }
-
+        // Functional Download Report
         document.getElementById('exportBtn').onclick = () => {
-            const csv = "data:text/csv;charset=utf-8," + finalData.map(e => e.join(",")).join("\n");
+            let csvRows = [["PRIMA MOTION BIOMECHANICS REPORT"], ["Generated:", new Date().toLocaleString()], [""]];
+            csvRows.push(["METRIC", "VALUE"]);
+            summaryMetrics.forEach(m => csvRows.push([m.label, m.val]));
+            
+            let csvContent = csvRows.map(row => row.join(",")).join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = encodeURI(csv);
-            link.download = "Prima_Motion_Report.csv";
+            link.setAttribute("href", url);
+            link.setAttribute("download", `JUMPANZ_Report_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         };
     </script>
 </body>
