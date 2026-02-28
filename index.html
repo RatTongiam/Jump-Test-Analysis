@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prima Motion Turbo - WebGL</title>
+    <title>Prima Motion - Filter Enabled</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans">
+<body class="bg-slate-50 min-h-screen">
 
-    <div class="max-w-6xl mx-auto py-4 px-4">
+    <div class="max-w-7xl mx-auto py-4 px-4">
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
             <header class="bg-slate-900 p-6 text-white flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-black tracking-tighter">PRIMA MOTION <span class="text-blue-500 text-xs ml-1">v2.0 TURBO</span></h1>
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Advanced Biomechanics Engine</p>
-                </div>
-                <div id="statusIcon" class="hidden flex items-center gap-2">
-                    <span class="text-[10px] font-black text-emerald-500 uppercase">System Ready</span>
-                    <span class="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                    <h1 class="text-xl font-black tracking-tighter italic">PRIMA MOTION <span class="text-blue-500 text-xs not-italic ml-1">v2.5 PRO FILTER</span></h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Signal Processing & Analytics</p>
                 </div>
             </header>
 
@@ -27,34 +23,38 @@
                 <div class="lg:col-span-1 space-y-4">
                     <div class="p-5 bg-slate-100 rounded-2xl border border-slate-200 space-y-4">
                         <div>
-                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Analysis Type</label>
-                            <select id="analysisType" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-800 outline-none ring-blue-500 focus:ring-2">
+                            <label class="block text-[10px] font-black text-blue-600 uppercase mb-2">Signal Filtering (Smoothing)</label>
+                            <select id="filterSize" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1">None (Raw Data)</option>
+                                <option value="5">Low (5-pt Smooth)</option>
+                                <option value="11" selected>Medium (11-pt Smooth)</option>
+                                <option value="21">High (21-pt Smooth)</option>
+                            </select>
+                            <p class="text-[9px] text-slate-400 mt-1">*ช่วยกำจัด Artifacts แหลมๆ ที่ทำให้ค่า Peak เพี้ยน</p>
+                        </div>
+                        
+                        <div class="h-px bg-slate-200"></div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Test Type</label>
+                            <select id="analysisType" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="CMJ">Countermovement Jump</option>
                                 <option value="DJ">Drop Jump (RSI)</option>
                             </select>
                         </div>
+                        
                         <div>
-                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Select Data File</label>
-                            <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-600 file:text-white file:font-black cursor-pointer">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Upload File</label>
+                            <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-900 file:text-white file:font-black">
                         </div>
-                        <div id="procTime" class="text-[9px] font-bold text-slate-400 uppercase text-right"></div>
                     </div>
-                    
-                    <button id="exportBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 hidden">
-                        DOWNLOAD CSV REPORT
-                    </button>
+                    <button id="exportBtn" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg hidden">DOWNLOAD REPORT</button>
                 </div>
 
                 <div class="lg:col-span-3 space-y-6">
-                    <div id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        </div>
-                    
+                    <div id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-1 relative shadow-inner">
                         <div id="chart" class="w-full h-[480px]"></div>
-                        <div id="loader" class="absolute inset-0 bg-white/90 flex flex-col items-center justify-center hidden z-10 rounded-2xl">
-                            <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                            <p class="mt-4 text-[10px] font-black text-slate-800 uppercase tracking-widest">Processing WebGL Graph...</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -63,59 +63,64 @@
 
     <script>
         const regex = /(-?\d+\.\d+)/;
-        let finalReport = [];
+        let rawParsedData = [];
+
+        // ฟังก์ชัน Moving Average สำหรับลบ Artifacts
+        function movingAverage(data, windowSize) {
+            if (windowSize <= 1) return data;
+            let result = [];
+            let half = Math.floor(windowSize / 2);
+            for (let i = 0; i < data.length; i++) {
+                let start = Math.max(0, i - half);
+                let end = Math.min(data.length, i + half + 1);
+                let sum = 0;
+                for (let j = start; j < end; j++) {
+                    sum += data[j];
+                }
+                result.push(sum / (end - start));
+            }
+            return result;
+        }
 
         function parseForce(val) {
             if (!val) return null;
-            const s = val.toString().trim();
-            const lastPart = s.split(/\s+/).pop();
-            const match = lastPart.match(regex);
+            const parts = val.toString().trim().split(/\s+/);
+            const match = parts[parts.length - 1].match(regex);
             return match ? parseFloat(match[1]) : null;
         }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
-            const loader = document.getElementById('loader');
-            loader.classList.remove('hidden');
-
             Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                worker: true, // ใช้ Web Worker เพื่อความเร็ว
+                header: true, skipEmptyLines: true, worker: true,
                 complete: function(results) {
-                    const tStart = performance.now();
-                    processFast(results.data);
-                    const tEnd = performance.now();
-                    document.getElementById('procTime').innerText = `Engine: ${(tEnd-tStart).toFixed(1)}ms`;
-                    document.getElementById('statusIcon').classList.remove('hidden');
-                    loader.classList.add('hidden');
+                    rawParsedData = results.data;
+                    processWithFilter();
                 }
             });
         });
 
-        function processFast(data) {
-            const times = [], totals = [], lefts = [], rights = [];
-            let maxForce = 0;
+        // สั่งประมวลผลใหม่เมื่อเปลี่ยนค่าฟิลเตอร์
+        document.getElementById('filterSize').addEventListener('change', processWithFilter);
 
-            // Highly optimized single loop
-            for (let i = 0, len = data.length; i < len; i++) {
-                const row = data[i];
+        function processWithFilter() {
+            if (rawParsedData.length === 0) return;
+            
+            const windowSize = parseInt(document.getElementById('filterSize').value);
+            let times = [], totals = [], lefts = [], rights = [];
+
+            // 1. Clean & Extract
+            for (let i = 0; i < rawParsedData.length; i++) {
+                const row = rawParsedData[i];
                 let f = parseForce(row['force ']);
                 let l = parseForce(row['left force']);
                 let r = parseForce(row['right force']);
                 const t = parseFloat(row['time']);
-
                 if (isNaN(t)) continue;
-
-                // Auto-repair
+                
                 if (f === null && l !== null && r !== null) f = l + r;
-                else if (l === null && f !== null && r !== null) l = f - r;
-                else if (r === null && f !== null && l !== null) r = f - l;
-
                 if (f !== null) {
-                    if (f > maxForce) maxForce = f;
                     times.push(t);
                     totals.push(f);
                     lefts.push(l || 0);
@@ -123,67 +128,61 @@
                 }
             }
 
-            // Calculations (VALD standard)
+            // 2. Apply Smoothing Filter (กำจัด Artifacts)
+            const smoothTotals = movingAverage(totals, windowSize);
+            const smoothLefts = movingAverage(lefts, windowSize);
+            const smoothRights = movingAverage(rights, windowSize);
+
+            // 3. Biomechanics Calculations (ใช้ข้อมูลที่กรองแล้ว)
             const g = 9.80665;
             const dt = times[1] - times[0];
-            const bw = totals.slice(0, 500).reduce((a, b) => a + b, 0) / 500;
+            const bw = smoothTotals.slice(0, 500).reduce((a, b) => a + b, 0) / 500;
             const mass = bw / g;
 
             let startIdx = 0, takeoffIdx = times.length - 1;
-            for(let i=0; i<totals.length; i++) if(Math.abs(totals[i]-bw) > 25) { startIdx = i; break; }
-            for(let i=startIdx; i<totals.length; i++) if(totals[i] < 20) { takeoffIdx = i; break; }
+            for(let i=0; i<smoothTotals.length; i++) if(Math.abs(smoothTotals[i]-bw) > 25) { startIdx = i; break; }
+            for(let i=startIdx; i<smoothTotals.length; i++) if(smoothTotals[i] < 20) { takeoffIdx = i; break; }
 
             let v = 0, maxV = 0;
             for(let i=startIdx; i<=takeoffIdx; i++) {
-                v += ((totals[i] - bw) / mass) * dt;
+                v += ((smoothTotals[i] - bw) / mass) * dt;
                 if(v > maxV) maxV = v;
             }
 
             const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
-            const ct = times[takeoffIdx] - times[startIdx];
+            const peakF = Math.max(...smoothTotals);
 
-            // Immediate UI update
-            updateMetricsUI([
+            // 4. Update UI
+            updateMetrics([
                 { label: "Jump Height", val: jh.toFixed(1) + " cm" },
-                { label: "Peak Force", val: maxForce.toFixed(0) + " N" },
+                { label: "Peak Force", val: peakF.toFixed(0) + " N" },
                 { label: "Body Mass", val: (bw/g).toFixed(1) + " kg" },
-                { label: "Contraction", val: ct.toFixed(2) + " s" }
+                { label: "Filter Status", val: windowSize > 1 ? "Active" : "Raw" }
             ]);
 
-            // WebGL Plotting (Turbo mode)
+            // 5. Plotly (ใช้ scattergl เพื่อความลื่น)
             Plotly.newPlot('chart', [
-                { x: times, y: totals, name: 'Total', type: 'scattergl', line: {color: '#0f172a', width: 2} },
-                { x: times, y: lefts, name: 'Left', type: 'scattergl', line: {color: '#3b82f6', width: 1}, opacity: 0.6 },
-                { x: times, y: rights, name: 'Right', type: 'scattergl', line: {color: '#ef4444', width: 1}, opacity: 0.6 }
+                { x: times, y: totals, name: 'Raw Total', type: 'scattergl', line: {color: '#ddd', width: 1}, opacity: 0.4 },
+                { x: times, y: smoothTotals, name: 'Filtered Total', type: 'scattergl', line: {color: '#0f172a', width: 2.5} },
+                { x: times, y: smoothLefts, name: 'Left', type: 'scattergl', line: {color: '#3b82f6', width: 1} },
+                { x: times, y: smoothRights, name: 'Right', type: 'scattergl', line: {color: '#ef4444', width: 1} }
             ], {
                 margin: { t: 10, b: 30, l: 40, r: 10 },
-                xaxis: { title: 'Time (s)', gridcolor: '#f1f5f9', zeroline: false },
-                yaxis: { title: 'Force (N)', gridcolor: '#f1f5f9', zeroline: false },
-                hovermode: 'x unified',
-                plot_bgcolor: 'white'
-            }, {responsive: true, displayModeBar: false});
-
-            document.getElementById('exportBtn').classList.remove('hidden');
-            finalReport = [["Metric","Value"], ["Jump Height (cm)",jh.toFixed(2)], ["Peak Force (N)",maxForce.toFixed(2)], ["Mass (kg)",(bw/g).toFixed(2)]];
+                xaxis: { title: 'Time (s)', gridcolor: '#f1f5f9' },
+                yaxis: { title: 'Force (N)', gridcolor: '#f1f5f9' },
+                hovermode: 'x unified'
+            });
         }
 
-        function updateMetricsUI(metrics) {
+        function updateMetrics(metrics) {
             const container = document.getElementById('metrics');
             container.innerHTML = metrics.map(m => `
-                <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow text-center">
-                    <p class="text-[9px] text-slate-400 font-black uppercase tracking-tighter mb-1">${m.label}</p>
+                <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm text-center">
+                    <p class="text-[9px] text-slate-400 font-black uppercase mb-1">${m.label}</p>
                     <p class="text-xl font-black text-slate-900">${m.val}</p>
                 </div>
             `).join('');
         }
-
-        document.getElementById('exportBtn').onclick = () => {
-            const csv = "data:text/csv;charset=utf-8," + finalReport.map(e => e.join(",")).join("\n");
-            const link = document.createElement("a");
-            link.href = encodeURI(csv);
-            link.download = `Prima_Report_${new Date().getTime()}.csv`;
-            link.click();
-        };
     </script>
 </body>
 </html>
