@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prima Motion Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <header class="border-b pb-4 mb-6">
+            <h1 class="text-2xl font-bold text-blue-900">Prima Motion: Biomechanics Analyzer</h1>
+            <p class="text-gray-500">วิเคราะห์ข้อมูล Force Plate (VALD Standard)</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <label class="block font-semibold mb-2">1. เลือกประเภทการวิเคราะห์</label>
+                <select id="analysisType" class="w-full p-2 border rounded mb-4">
+                    <option value="CMJ">Countermovement Jump (CMJ)</option>
+                    <option value="DJ">Drop Jump (DJ)</option>
+                </select>
+
+                <label class="block font-semibold mb-2">2. อัปโหลดไฟล์ CSV</label>
+                <input type="file" id="fileInput" accept=".csv" class="w-full text-sm">
+                
+                <div id="status" class="mt-4 text-sm text-blue-600 font-medium"></div>
+                
+                <button id="exportBtn" class="w-full mt-6 bg-green-600 text-white p-2 rounded hidden hover:bg-green-700">
+                    📥 Export Results to CSV
+                </button>
+            </div>
+
+            <div class="md:col-span-3">
+                <div id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    </div>
+                <div id="chart" class="w-full h-[500px] border rounded bg-white"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const analysisType = document.getElementById('analysisType');
+        const exportBtn = document.getElementById('exportBtn');
+        let analysisResults = [];
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('status').innerText = "กำลังประมวลผล...";
+            
+            Papa.parse(file, {
+                header: true,
+                dynamicTyping: false,
+                complete: function(results) {
+                    processData(results.data);
+                }
+            });
+        });
+
+        // ฟังก์ชันล้างข้อมูลเลขขยะ (เหมือนที่พรีมเขียนใน Python)
+        function cleanValue(val) {
+            if (!val) return null;
+            let s = val.toString().trim().replace(/\s+/g, '');
+            let match = s.match(/(-?\d+\.\d+)/);
+            return match ? parseFloat(match[1]) : null;
+        }
+
+        function processData(rawData) {
+            // 1. Clean Data
+            let cleanData = rawData.map(row => ({
+                time: parseFloat(row['time']),
+                total: cleanValue(row['force ']),
+                left: cleanValue(row['left force']),
+                right: cleanValue(row['right force'])
+            })).filter(d => !isNaN(d.time));
+
+            // 2. วิเคราะห์เบื้องต้น (CMJ Logic)
+            const g = 9.81;
+            const dt = 0.001; // 1000Hz
+            const bw = cleanData.slice(0, 500).reduce((acc, d) => acc + d.total, 0) / 500;
+            const mass = bw / g;
+
+            // ตรวจหาจุดเริ่มและ Take-off
+            let startIdx = cleanData.findIndex(d => Math.abs(d.total - bw) > 20);
+            let takeoffIdx = cleanData.findIndex((d, i) => i > startIdx && d.total < 20);
+
+            // คำนวณความเร็ว (Integration)
+            let velocity = 0;
+            let maxVel = 0;
+            for(let i = startIdx; i <= takeoffIdx; i++) {
+                let accel = (cleanData[i].total - bw) / mass;
+                velocity += accel * dt;
+                if (velocity > maxVel) maxVel = velocity;
+            }
+
+            const jumpHeight = (Math.pow(maxVel, 2) / (2 * g)) * 100; // cm
+            const peakForce = Math.max(...cleanData.map(d => d.total));
+
+            // 3. แสดงผล Metrics
+            displayMetrics([
+                { label: "Jump Height", value: jumpHeight.toFixed(1) + " cm" },
+                { label: "Peak Force", value: peakForce.toFixed(0) + " N" },
+                { label: "Body Weight", value: bw.toFixed(1) + " N" },
+                { label: "Asymmetry @Peak", value: "รอวิเคราะห์ %" }
+            ]);
+
+            // 4. วาดกราฟ
+            const traceTotal = {
+                x: cleanData.map(d => d.time),
+                y: cleanData.map(d => d.total),
+                name: 'Total Force',
+                line: {color: 'black', width: 2}
+            };
+            const traceLeft = {
+                x: cleanData.map(d => d.time),
+                y: cleanData.map(d => d.left),
+                name: 'Left',
+                line: {color: 'blue', width: 1}
+            };
+            const traceRight = {
+                x: cleanData.map(d => d.time),
+                y: cleanData.map(d => d.right),
+                name: 'Right',
+                line: {color: 'red', width: 1}
+            };
+
+            Plotly.newPlot('chart', [traceTotal, traceLeft, traceRight], {
+                margin: { t: 30, b: 40, l: 50, r: 20 },
+                xaxis: { title: 'Time (s)' },
+                yaxis: { title: 'Force (N)' },
+                hovermode: 'x unified'
+            });
+
+            document.getElementById('status').innerText = "วิเคราะห์สำเร็จ!";
+            exportBtn.classList.remove('hidden');
+            analysisResults = [["Metric", "Value"], ["Jump Height (cm)", jumpHeight], ["Peak Force (N)", peakForce], ["BW (N)", bw]];
+        }
+
+        function displayMetrics(data) {
+            const container = document.getElementById('metrics');
+            container.innerHTML = data.map(m => `
+                <div class="bg-white border p-4 rounded shadow-sm text-center">
+                    <p class="text-xs text-gray-500 uppercase font-bold">${m.label}</p>
+                    <p class="text-xl font-bold text-blue-600">${m.value}</p>
+                </div>
+            `).join('');
+        }
+
+        exportBtn.onclick = () => {
+            let csvContent = "data:text/csv;charset=utf-8," + analysisResults.map(e => e.join(",")).join("\n");
+            window.open(encodeURI(csvContent));
+        };
+    </script>
+</body>
+</html>
