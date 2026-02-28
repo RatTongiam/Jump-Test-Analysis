@@ -3,38 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prima Motion - Clinical Symmetry</title>
+    <title>Prima Motion Pro - Biomechanics Lab</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-100 min-h-screen font-sans">
 
-    <div class="max-w-7xl mx-auto py-4 px-4">
+    <div class="max-w-7xl mx-auto py-6 px-4">
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
             <header class="bg-slate-900 p-6 text-white flex justify-between items-center border-b-4 border-blue-600">
                 <div>
-                    <h1 class="text-xl font-black italic tracking-tighter">PRIMA MOTION <span class="text-blue-500 not-italic ml-1 text-xs uppercase">Symmetry Lab</span></h1>
-                    <p class="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Single Trial Deficit Analysis</p>
+                    <h1 class="text-2xl font-black italic tracking-tighter">PRIMA MOTION <span class="text-blue-500 not-italic ml-1 text-sm uppercase">PRO V3.0</span></h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">Full Movement Phase & Metrics Engine</p>
                 </div>
             </header>
 
-            <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div class="lg:col-span-1 space-y-4">
-                    <div class="p-5 bg-slate-100 rounded-2xl border border-slate-200 space-y-4">
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-6">
                         <div>
-                            <label class="block text-[10px] font-black text-blue-600 uppercase mb-2">Threshold (%)</label>
-                            <input type="number" id="threshold" value="15" class="w-full p-2.5 border rounded-xl font-bold text-center">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Signal Smoothing</label>
-                            <select id="filterSize" class="w-full p-2.5 border rounded-xl font-bold bg-white">
-                                <option value="1">Raw</option>
-                                <option value="11" selected>Optimal (11-pt)</option>
-                                <option value="21">Strong (21-pt)</option>
+                            <label class="block text-[10px] font-black text-blue-600 uppercase mb-2 italic">Smoothing Filter</label>
+                            <select id="filterSize" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl font-bold text-slate-800 outline-none focus:border-blue-500 transition-all">
+                                <option value="1">Raw (No Filter)</option>
+                                <option value="7">Soft (7-pt)</option>
+                                <option value="13" selected>Medium (13-pt)</option>
+                                <option value="25">Hard (25-pt)</option>
                             </select>
                         </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Analysis Type</label>
+                            <select id="analysisType" class="w-full p-3 bg-white border-2 border-slate-200 rounded-xl font-bold">
+                                <option value="CMJ">Countermovement Jump</option>
+                                <option value="DJ">Drop Jump (RSI Focus)</option>
+                            </select>
+                        </div>
+
                         <div class="h-px bg-slate-200"></div>
+
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Upload Data</label>
+                            <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-full file:bg-blue-900 file:text-white file:font-black cursor-pointer">
+                        </div>
+                    </div>
+                    <button id="exportBtn" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg hidden hover:bg-emerald-700 transition-all transform active:scale-95">📥 DOWNLOAD PDF/CSV REPORT</button>
+                </div>
+
+                <div class="lg:col-span-3 space-y-6">
+                    <div id="metrics" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                        </div>
+
+                    <div class="bg-white border rounded-2xl p-2 shadow-inner space-y-2">
+                        <div id="forceChart" class="w-full h-[380px]"></div>
+                        <div class="h-px bg-slate-100 mx-10"></div>
+                        <div id="deficitChart" class="w-full h-[220px]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const regex = /(-?\d+\.\d+)/;
+        let globalRaw = [];
+
+        function movingAverage(d, s) {
+            if (s <= 1) return d;
+            let res = [], h = Math.floor(s/2);
+            for(let i=0; i<d.length; i++){
+                let start = Math.max(0, i-h), end = Math.min(d.length, i+h+1);
+                let sum = 0; for(let j=start; j<end; j++) sum += d[j];
+                res.push(sum/(end-start));
+            }
+            return res;
+        }
+
+        function parseV(v) {
+            if(!v) return null;
+            let p = v.toString().trim().split(/\s+/).pop();
+            let m = p.match(regex);
+            return m ? parseFloat(m[1]) : null;
+        }
+
+        document.getElementById('fileInput').addEventListener('change', e => {
+            const f = e.target.files[0];
+            if(!f) return;
+            Papa.parse(f, { header:true, skipEmptyLines:true, worker:true, complete: r => { globalRaw = r.data; run(); }});
+        });
+
+        document.getElementById('filterSize').addEventListener('change', run);
+
+        function run() {
+            if(!globalRaw.length) return;
+            const fSize = parseInt(document.getElementById('filterSize').value);
+            
+            let t=[], f=[], l=[], r=[];
+            globalRaw.forEach(row => {
+                let force = parseV(row['force ']), left = parseV(row['left force']), right = parseV(row['right force']), time = parseFloat(row['time']);
+                if(!isNaN(time)) { t.push(time); f.push(force || (left+right)); l.push(left || 0); r.push(right || 0); }
+            });
+
+            const sf = movingAverage(f, fSize), sl = movingAverage(l, fSize), sr = movingAverage(r, fSize);
+            
+            // --- Biomechanics Logic ---
+            const g = 9.80665, dt = t[1]-t[0];
+            const bw = sf.slice(0, 500).reduce((a,b)=>a+b,0)/500;
+            const mass = bw/g;
+
+            // Phase Detection
+            let sIdx = sf.findIndex(v => Math.abs(v-bw) > 20); // Start of Movement
+            let tIdx = sf.findIndex((v,i) => i > sIdx && v < 25); // Take-off
+            
+            // Calculate Velocity & Displacement
+            let velocity = 0, maxV = 0, vArr = [];
+            for(let i=0; i<sf.length; i++) {
+                if(i >= sIdx && i <= tIdx) {
+                    velocity += ((sf[i]-bw)/mass) * dt;
+                } else {
+                    velocity = 0;
+                }
+                vArr.push(velocity);
+                if(velocity > maxV) maxV = velocity;
+            }
+
+            // Phase Separation
+            // Eccentric: SOM to Zero Velocity (Moment of max dip)
+            // Concentric: Zero Velocity to Take-off
+            let zeroVIdx = sIdx;
+            let minV = 0;
+            for(let i=sIdx; i<tIdx; i++) {
+                if(vArr[i] < minV) { minV = vArr[i]; }
+                if(i > sIdx && vArr[i-1] < 0 && vArr[i] >= 0) { zeroVIdx = i; break; }
+            }
+
+            const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
+            const peakPower = Math.max(...sf.map((f,i) => f * Math.abs(vArr[i])));
+            const rsiMod = (jh/100) / (t[tIdx] - t[sIdx]);
+
+            updateMetricsUI([
+                { label: "Jump Height", val: jh.toFixed(1)+" cm" },
+                { label: "Peak Force", val: Math.max(...sf).toFixed(                        <div class="h-px bg-slate-200"></div>
                         <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-full file:bg-blue-900 file:text-white file:font-black cursor-pointer">
                     </div>
                     <button id="exportBtn" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg hidden">GENERATE CSV REPORT</button>
