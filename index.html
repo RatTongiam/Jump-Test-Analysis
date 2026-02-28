@@ -3,58 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prima Motion - Filter Enabled</title>
+    <title>Prima Motion - Deficit Mapping</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-    <div class="max-w-7xl mx-auto py-4 px-4">
+    <div class="max-w-7xl mx-auto py-6 px-4">
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
-            <header class="bg-slate-900 p-6 text-white flex justify-between items-center">
+            <header class="bg-slate-900 p-6 text-white flex justify-between items-center border-b-4 border-blue-600">
                 <div>
-                    <h1 class="text-xl font-black tracking-tighter italic">PRIMA MOTION <span class="text-blue-500 text-xs not-italic ml-1">v2.5 PRO FILTER</span></h1>
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Signal Processing & Analytics</p>
+                    <h1 class="text-2xl font-black italic tracking-tighter">PRIMA MOTION <span class="text-blue-500 not-italic ml-1 text-sm uppercase">Asymmetry Mapping</span></h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">Clinical Deficit Analysis Engine</p>
                 </div>
             </header>
 
             <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div class="lg:col-span-1 space-y-4">
-                    <div class="p-5 bg-slate-100 rounded-2xl border border-slate-200 space-y-4">
+                    <div class="p-5 bg-slate-100 rounded-2xl border border-slate-200 space-y-5">
                         <div>
-                            <label class="block text-[10px] font-black text-blue-600 uppercase mb-2">Signal Filtering (Smoothing)</label>
-                            <select id="filterSize" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="1">None (Raw Data)</option>
-                                <option value="5">Low (5-pt Smooth)</option>
-                                <option value="11" selected>Medium (11-pt Smooth)</option>
-                                <option value="21">High (21-pt Smooth)</option>
-                            </select>
-                            <p class="text-[9px] text-slate-400 mt-1">*ช่วยกำจัด Artifacts แหลมๆ ที่ทำให้ค่า Peak เพี้ยน</p>
+                            <label class="block text-[10px] font-black text-blue-600 uppercase mb-2">Deficit Threshold (%)</label>
+                            <input type="number" id="threshold" value="15" class="w-full p-2 border rounded-lg font-bold text-center">
+                            <p class="text-[9px] text-slate-400 mt-1">*Clinical standard: 10-15%</p>
                         </div>
-                        
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Smoothing</label>
+                            <select id="filterSize" class="w-full p-2 border rounded-lg font-bold">
+                                <option value="1">Raw</option>
+                                <option value="11" selected>Optimal (11-pt)</option>
+                                <option value="21">Strong (21-pt)</option>
+                            </select>
+                        </div>
                         <div class="h-px bg-slate-200"></div>
-
-                        <div>
-                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Test Type</label>
-                            <select id="analysisType" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="CMJ">Countermovement Jump</option>
-                                <option value="DJ">Drop Jump (RSI)</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Upload File</label>
-                            <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-900 file:text-white file:font-black">
-                        </div>
+                        <input type="file" id="fileInput" accept=".csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-full file:bg-blue-900 file:text-white file:font-black">
                     </div>
-                    <button id="exportBtn" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg hidden">DOWNLOAD REPORT</button>
                 </div>
 
                 <div class="lg:col-span-3 space-y-6">
                     <div id="metrics" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-1 relative shadow-inner">
-                        <div id="chart" class="w-full h-[480px]"></div>
+
+                    <div class="bg-white border rounded-2xl p-2 shadow-inner space-y-2">
+                        <div id="forceChart" class="w-full h-[350px]"></div>
+                        <div class="h-px bg-slate-100 mx-10"></div>
+                        <div id="deficitChart" class="w-full h-[250px]"></div>
                     </div>
                 </div>
             </div>
@@ -63,123 +55,124 @@
 
     <script>
         const regex = /(-?\d+\.\d+)/;
-        let rawParsedData = [];
+        let globalData = [];
 
-        // ฟังก์ชัน Moving Average สำหรับลบ Artifacts
-        function movingAverage(data, windowSize) {
-            if (windowSize <= 1) return data;
-            let result = [];
-            let half = Math.floor(windowSize / 2);
+        function movingAverage(data, size) {
+            if (size <= 1) return data;
+            let result = [], half = Math.floor(size / 2);
             for (let i = 0; i < data.length; i++) {
-                let start = Math.max(0, i - half);
-                let end = Math.min(data.length, i + half + 1);
-                let sum = 0;
-                for (let j = start; j < end; j++) {
-                    sum += data[j];
-                }
-                result.push(sum / (end - start));
+                let s = Math.max(0, i - half), e = Math.min(data.length, i + half + 1);
+                let sum = 0; for (let j = s; j < e; j++) sum += data[j];
+                result.push(sum / (e - s));
             }
             return result;
         }
 
-        function parseForce(val) {
-            if (!val) return null;
-            const parts = val.toString().trim().split(/\s+/);
-            const match = parts[parts.length - 1].match(regex);
-            return match ? parseFloat(match[1]) : null;
+        function parseVal(v) {
+            if(!v) return null;
+            let p = v.toString().trim().split(/\s+/).pop();
+            let m = p.match(regex);
+            return m ? parseFloat(m[1]) : null;
         }
 
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            Papa.parse(file, {
+        document.getElementById('fileInput').addEventListener('change', e => {
+            const f = e.target.files[0];
+            if(!f) return;
+            Papa.parse(f, {
                 header: true, skipEmptyLines: true, worker: true,
-                complete: function(results) {
-                    rawParsedData = results.data;
-                    processWithFilter();
-                }
+                complete: res => { globalData = res.data; analyze(); }
             });
         });
 
-        // สั่งประมวลผลใหม่เมื่อเปลี่ยนค่าฟิลเตอร์
-        document.getElementById('filterSize').addEventListener('change', processWithFilter);
+        document.getElementById('filterSize').addEventListener('change', analyze);
+        document.getElementById('threshold').addEventListener('input', analyze);
 
-        function processWithFilter() {
-            if (rawParsedData.length === 0) return;
-            
-            const windowSize = parseInt(document.getElementById('filterSize').value);
-            let times = [], totals = [], lefts = [], rights = [];
+        function analyze() {
+            if(!globalData.length) return;
+            const smoothSize = parseInt(document.getElementById('filterSize').value);
+            const limit = parseFloat(document.getElementById('threshold').value);
 
-            // 1. Clean & Extract
-            for (let i = 0; i < rawParsedData.length; i++) {
-                const row = rawParsedData[i];
-                let f = parseForce(row['force ']);
-                let l = parseForce(row['left force']);
-                let r = parseForce(row['right force']);
-                const t = parseFloat(row['time']);
-                if (isNaN(t)) continue;
-                
-                if (f === null && l !== null && r !== null) f = l + r;
-                if (f !== null) {
-                    times.push(t);
-                    totals.push(f);
-                    lefts.push(l || 0);
-                    rights.push(r || 0);
+            let times = [], totals = [], lefts = [], rights = [], deficits = [];
+
+            globalData.forEach(row => {
+                let f = parseVal(row['force ']), l = parseVal(row['left force']), r = parseVal(row['right force']), t = parseFloat(row['time']);
+                if(!isNaN(t)) {
+                    times.push(t); totals.push(f || (l+r)); lefts.push(l || 0); rights.push(r || 0);
                 }
+            });
+
+            const sT = movingAverage(totals, smoothSize);
+            const sL = movingAverage(lefts, smoothSize);
+            const sR = movingAverage(rights, smoothSize);
+
+            // Calculate Deficit: (L - R) / max(L, R) * 100
+            for(let i=0; i<sT.length; i++) {
+                if(sT[i] < 50) { deficits.push(0); continue; } // Filter out flight/quiet noise
+                let def = ((sL[i] - sR[i]) / Math.max(sL[i], sR[i])) * 100;
+                deficits.push(def);
             }
 
-            // 2. Apply Smoothing Filter (กำจัด Artifacts)
-            const smoothTotals = movingAverage(totals, windowSize);
-            const smoothLefts = movingAverage(lefts, windowSize);
-            const smoothRights = movingAverage(rights, windowSize);
+            // Calculations
+            const g = 9.80665, dt = times[1]-times[0];
+            const bw = sT.slice(0, 500).reduce((a,b)=>a+b,0)/500;
+            const mass = bw/g;
+            let sIdx = sT.findIndex(v => Math.abs(v-bw)>20);
+            let tIdx = sT.findIndex((v,i) => i>sIdx && v<25);
+            
+            let v=0, maxV=0;
+            for(let i=sIdx; i<=tIdx; i++) { v += ((sT[i]-bw)/mass)*dt; if(v>maxV) maxV=v; }
+            
+            // Peak Deficit in Propulsion
+            const propRange = deficits.slice(sIdx, tIdx);
+            const maxDeficit = Math.max(...propRange.map(Math.abs));
 
-            // 3. Biomechanics Calculations (ใช้ข้อมูลที่กรองแล้ว)
-            const g = 9.80665;
-            const dt = times[1] - times[0];
-            const bw = smoothTotals.slice(0, 500).reduce((a, b) => a + b, 0) / 500;
-            const mass = bw / g;
-
-            let startIdx = 0, takeoffIdx = times.length - 1;
-            for(let i=0; i<smoothTotals.length; i++) if(Math.abs(smoothTotals[i]-bw) > 25) { startIdx = i; break; }
-            for(let i=startIdx; i<smoothTotals.length; i++) if(smoothTotals[i] < 20) { takeoffIdx = i; break; }
-
-            let v = 0, maxV = 0;
-            for(let i=startIdx; i<=takeoffIdx; i++) {
-                v += ((smoothTotals[i] - bw) / mass) * dt;
-                if(v > maxV) maxV = v;
-            }
-
-            const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
-            const peakF = Math.max(...smoothTotals);
-
-            // 4. Update UI
-            updateMetrics([
-                { label: "Jump Height", val: jh.toFixed(1) + " cm" },
-                { label: "Peak Force", val: peakF.toFixed(0) + " N" },
-                { label: "Body Mass", val: (bw/g).toFixed(1) + " kg" },
-                { label: "Filter Status", val: windowSize > 1 ? "Active" : "Raw" }
+            updateUI([
+                { label: "Jump Height", val: ((maxV**2)/(2*g)*100).toFixed(1) + " cm" },
+                { label: "Mean Deficit", val: (propRange.reduce((a,b)=>a+b,0)/propRange.length).toFixed(1) + " %" },
+                { label: "Peak Deficit", val: maxDeficit.toFixed(1) + " %" },
+                { label: "Status", val: maxDeficit > limit ? "⚠️ ASYMMETRIC" : "✅ SYMMETRIC" }
             ]);
 
-            // 5. Plotly (ใช้ scattergl เพื่อความลื่น)
-            Plotly.newPlot('chart', [
-                { x: times, y: totals, name: 'Raw Total', type: 'scattergl', line: {color: '#ddd', width: 1}, opacity: 0.4 },
-                { x: times, y: smoothTotals, name: 'Filtered Total', type: 'scattergl', line: {color: '#0f172a', width: 2.5} },
-                { x: times, y: smoothLefts, name: 'Left', type: 'scattergl', line: {color: '#3b82f6', width: 1} },
-                { x: times, y: smoothRights, name: 'Right', type: 'scattergl', line: {color: '#ef4444', width: 1} }
-            ], {
-                margin: { t: 10, b: 30, l: 40, r: 10 },
-                xaxis: { title: 'Time (s)', gridcolor: '#f1f5f9' },
+            // Chart 1: Force
+            const forceLayout = {
+                margin: {t:20, b:20, l:50, r:20}, hovermode: 'x unified',
+                xaxis: { showticklabels: false, gridcolor: '#f1f5f9' },
                 yaxis: { title: 'Force (N)', gridcolor: '#f1f5f9' },
-                hovermode: 'x unified'
+                legend: { orientation: 'h', y: 1.1 }
+            };
+            Plotly.newPlot('forceChart', [
+                { x: times, y: sL, name: 'Left', type: 'scattergl', line: {color: '#3b82f6'} },
+                { x: times, y: sR, name: 'Right', type: 'scattergl', line: {color: '#ef4444'} }
+            ], forceLayout);
+
+            // Chart 2: Deficit Mapping
+            const deficitLayout = {
+                margin: {t:10, b:40, l:50, r:20}, hovermode: 'x unified',
+                xaxis: { title: 'Time (s)', gridcolor: '#f1f5f9' },
+                yaxis: { title: 'Deficit L-R (%)', range: [-50, 50], gridcolor: '#f1f5f9' },
+                shapes: [
+                    { type:'rect', x0:times[0], x1:times[times.length-1], y0:-limit, y1:limit, fillcolor:'rgba(16,185,129,0.1)', line:{width:0} }
+                ]
+            };
+            Plotly.newPlot('deficitChart', [
+                { x: times, y: deficits, name: 'Deficit %', type: 'scattergl', line: {color: '#6366f1', width: 2}, fill: 'tozeroy' }
+            ], deficitLayout);
+
+            // Link Hover
+            const charts = [document.getElementById('forceChart'), document.getElementById('deficitChart')];
+            charts.forEach(c => {
+                c.on('plotly_hover', d => {
+                    let p = d.points[0].pointIndex;
+                    charts.forEach(other => { if(other !== c) Plotly.Fx.hover(other, [{curveNumber:0, pointNumber:p}]); });
+                });
             });
         }
 
-        function updateMetrics(metrics) {
-            const container = document.getElementById('metrics');
-            container.innerHTML = metrics.map(m => `
-                <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm text-center">
-                    <p class="text-[9px] text-slate-400 font-black uppercase mb-1">${m.label}</p>
-                    <p class="text-xl font-black text-slate-900">${m.val}</p>
+        function updateUI(m) {
+            document.getElementById('metrics').innerHTML = m.map(i => `
+                <div class="bg-white border-l-4 ${i.val.includes('⚠️') ? 'border-orange-500' : 'border-blue-500'} p-4 rounded-xl shadow-sm">
+                    <p class="text-[9px] text-slate-400 font-black uppercase mb-1">${i.label}</p>
+                    <p class="text-xl font-black text-slate-800">${i.val}</p>
                 </div>
             `).join('');
         }
