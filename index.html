@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUMPANZ V1.5 PRO - Prima Motion</title>
-    <!-- Import Fonts: Open Sans for UI and Josefin Sans for Brand -->
+    <title>JUMPANZ V1.7 PRO - Prima Motion Technology</title>
+    <!-- Import Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Josefin+Sans:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
@@ -12,9 +12,14 @@
     <style>
         :root {
             --primary: #4d2994;
+            --primary-dark: #1a0f30; 
             --accent: #D0c3f1;
-            --bg: #f8f7f2;
-            --text-main: #1a0f30; /* ปรับให้เข้มที่สุดเพื่อ Contrast สูงสุด */
+            --bg: #ffffff; 
+            --text-main: #1a0f30;
+            --signal-red: #ef4444;
+            --signal-yellow: #facc15;
+            --signal-green: #22c55e;
+            --signal-off: #e5e7eb;
         }
         body { 
             font-family: 'Open Sans', sans-serif; 
@@ -29,90 +34,136 @@
             text-transform: uppercase;
         }
 
-        .meter-container { position: relative; width: 140px; height: 70px; overflow: hidden; margin: 0 auto; }
-        .meter-bg { width: 140px; height: 140px; border-radius: 50%; border: 5px solid var(--primary); background: #fff; position: absolute; top: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
-        .meter-needle { width: 3px; height: 60px; background: #ef4444; position: absolute; bottom: 0; left: 68.5px; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; border-radius: 2px; }
-        .meter-center { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; position: absolute; bottom: -5px; left: 65px; z-index: 11; }
-        
-        /* Table Styles Optimized for Maximum Contrast */
+        /* Traffic Light Styles */
+        .light-bulb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--signal-off);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .light-active-red { background-color: var(--signal-red); box-shadow: 0 0 12px var(--signal-red); }
+        .light-active-yellow { background-color: var(--signal-yellow); box-shadow: 0 0 12px var(--signal-yellow); }
+        .light-active-green { background-color: var(--signal-green); box-shadow: 0 0 12px var(--signal-green); }
+
+        /* Clean Table Styles */
         .report-table th { 
-            background-color: var(--primary); 
-            padding: 14px 12px; 
+            background-color: transparent; 
+            padding: 16px 12px; 
             font-size: 11px; 
             text-transform: uppercase; 
-            letter-spacing: 0.08em; 
+            letter-spacing: 0.1em; 
             font-weight: 700; 
-            color: white; 
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
         }
         .report-table td { 
-            border-bottom: 1px solid rgba(77, 41, 148, 0.2); 
-            padding: 14px 12px; 
+            border-bottom: 1px solid #eee; 
+            padding: 16px 12px; 
             font-size: 14px; 
             font-weight: 600;
             color: var(--text-main);
         }
-        .report-table tr:hover { background-color: rgba(77, 41, 148, 0.04); }
         .phase-header { 
-            background-color: #2d1a50 !important; 
-            color: white !important; 
+            background-color: #f8f6fb !important; 
+            color: var(--primary-dark) !important; 
             font-family: 'Open Sans', sans-serif;
             font-size: 12px !important; 
             letter-spacing: 0.12em; 
+            border-bottom: 1px solid var(--accent) !important;
         }
         
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         
-        /* Sidebar Input Row Styles */
-        .input-row {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.2s ease;
+        .control-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
         }
-        .input-row:focus-within {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-color: var(--accent);
+        
+        .input-minimal {
+            background-color: #f3f4f6;
+            border: 1.5px solid #9ca3af; 
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        .input-minimal:focus {
+            border-color: var(--primary);
+            background-color: #ffffff;
+            outline: none;
+        }
+
+        .sidebar-label {
+            color: var(--primary-dark);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+        }
+
+        /* Image Placeholder Style if logo not found */
+        .logo-box {
+            max-height: 96px;
+            max-width: 240px;
+            object-contain: contain;
         }
     </style>
 </head>
-<body class="p-4 md:p-6">
+<body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
         <!-- Header Section -->
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b-2 border-primary pb-6">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12 border-b border-gray-100 pb-8">
             <div class="text-center md:text-left">
-                <h1 class="text-5xl brand-text tracking-tighter text-primary">JUMPANZ <span class="text-xl font-normal opacity-60 italic">V1.5 PRO</span></h1>
-                <!-- "PRIMA MOTION" is Josefin Sans Bold as requested -->
-                <p class="brand-text text-[12px] tracking-[0.3em] mt-1 text-primary">PRIMA MOTION <span class="font-normal opacity-80">BIOMECHANICS ANALYTICS</span></p>
+                <h1 class="text-6xl brand-text tracking-tighter text-primary">JUMPANZ <span class="text-2xl font-normal opacity-30 italic">V1.7 PRO</span></h1>
+                <p class="brand-text text-[14px] tracking-[0.2em] mt-2 text-primary-dark">PRIMA MOTION TECHNOLOGY</p>
+                <p class="text-[10px] italic font-semibold text-primary-dark opacity-50 mt-1 tracking-wider">Technology that unlocks scientific insight</p>
             </div>
             
-            <div class="mt-6 md:mt-0 flex items-center gap-6">
-                <div class="text-right hidden md:block">
-                    <p id="statusText" class="text-[10px] font-bold uppercase text-primary tracking-widest">System Ready</p>
-                    <p id="fileName" class="text-[10px] italic text-primary/70 font-semibold">No file loaded</p>
+            <div class="flex flex-col items-end gap-3 mt-8 md:mt-0">
+                <!-- โลโก้บริษัท Prima Motion Co., Ltd. -->
+                <img src="LOGO PRIMA PurpleYellow NOV2025.png" alt="PRIMA MOTION TECHNOLOGY" class="logo-box" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+                <div id="logo-fallback" class="hidden text-right">
+                    <p class="brand-text text-primary text-xl">PRIMA MOTION</p>
+                    <p class="text-[8px] font-bold opacity-40">CO., LTD.</p>
                 </div>
-                <div class="meter-container">
-                    <div class="meter-bg"></div>
-                    <div id="needle" class="meter-needle"></div>
-                    <div class="meter-center"></div>
-                </div>
+                <p id="fileNameDisplay" class="text-[12px] italic text-primary-dark opacity-60 font-bold tracking-tight">System Ready</p>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <!-- Sidebar Controls -->
-            <aside class="lg:col-span-3 space-y-4">
-                <div class="bg-primary text-white p-6 rounded-[2rem] shadow-xl space-y-6">
+            <aside class="lg:col-span-3 space-y-6">
+                <div class="control-card p-8 rounded-[2.5rem] space-y-8">
+                    <!-- 1. Upload Button -->
                     <div>
-                        <label class="block text-center bg-white text-primary font-bold py-3.5 px-4 rounded-2xl cursor-pointer hover:bg-accent transition-all text-xs tracking-widest uppercase shadow-xl">
-                            📂 Import CSV Data
+                        <label class="block text-center bg-primary text-white font-bold py-4 px-4 rounded-2xl cursor-pointer hover:bg-primary-dark transition-all text-xs tracking-widest uppercase shadow-md">
+                            📂 Import Data
                             <input type="file" id="fileInput" accept=".csv" class="hidden">
                         </label>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <!-- 2. Status Traffic Light -->
+                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                        <div class="flex items-center justify-between mb-3">
+                            <span id="statusText" class="text-[10px] font-extrabold uppercase text-primary-dark tracking-widest">Waiting for data</span>
+                            <div class="flex gap-1.5">
+                                <div id="lightRed" class="light-bulb light-active-red"></div>
+                                <div id="lightYellow" class="light-bulb"></div>
+                                <div id="lightGreen" class="light-bulb"></div>
+                            </div>
+                        </div>
+                        <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div id="statusProgress" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Configuration -->
+                    <div class="space-y-5 pt-2">
                         <div>
-                            <label class="block text-[10px] font-bold uppercase mb-1.5 text-white tracking-wider">Smoothing</label>
-                            <select id="filterSize" class="w-full p-2.5 bg-primary border-2 border-white/30 rounded-xl text-xs font-bold outline-none focus:border-white">
+                            <label class="sidebar-label block mb-2">Smoothing</label>
+                            <select id="filterSize" class="w-full p-3 input-minimal rounded-xl text-xs outline-none shadow-sm">
                                 <option value="1">Raw Data</option>
                                 <option value="7">Low Filter</option>
                                 <option value="15" selected>Standard</option>
@@ -120,62 +171,65 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold uppercase mb-1.5 text-white tracking-wider">Asym. Alert %</label>
-                            <input type="number" id="threshold" value="15" class="w-full p-2.5 bg-primary border-2 border-white/30 rounded-xl text-xs font-bold text-center outline-none focus:border-white">
+                            <label class="sidebar-label block mb-2">Asymmetry Alert %</label>
+                            <input type="number" id="threshold" value="15" class="w-full p-3 input-minimal rounded-xl text-xs text-center outline-none shadow-sm">
                         </div>
                     </div>
 
-                    <div class="pt-6 border-t border-white/20">
-                        <!-- Heading color changed to Accent for clarity -->
-                        <p class="text-[11px] font-bold uppercase mb-4 text-accent italic tracking-[0.15em]">Manual Phase Adjust</p>
-                        <div class="space-y-2.5">
-                            <!-- Increased contrast for input rows -->
-                            <div class="flex items-center justify-between input-row p-2.5 rounded-xl">
-                                <span class="text-[10px] font-bold uppercase text-white">Start (s)</span>
-                                <input type="number" id="manualStart" step="0.001" class="w-20 bg-transparent text-right text-xs font-bold text-white outline-none">
+                    <!-- 4. Phase Adjust -->
+                    <div class="pt-8 border-t border-gray-100">
+                        <p class="text-[11px] font-bold uppercase mb-5 text-primary-dark tracking-[0.2em] border-l-4 border-primary pl-3">Phase Adjustment</p>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="sidebar-label">Start (s)</span>
+                                <input type="number" id="manualStart" step="0.001" class="w-24 bg-gray-50 border border-gray-300 p-2.5 rounded-xl text-right text-xs font-bold text-primary-dark outline-none focus:border-primary">
                             </div>
-                            <div class="flex items-center justify-between input-row p-2.5 rounded-xl border-l-4 border-accent">
-                                <span class="text-[10px] font-bold uppercase text-white">V=0 (s)</span>
-                                <input type="number" id="manualSplit" step="0.001" class="w-20 bg-transparent text-right text-xs font-bold text-white outline-none">
+                            <div class="flex items-center justify-between">
+                                <span class="sidebar-label">V=0 (s)</span>
+                                <input type="number" id="manualSplit" step="0.001" class="w-24 bg-gray-50 border border-gray-300 p-2.5 rounded-xl text-right text-xs font-bold text-primary-dark outline-none focus:border-primary">
                             </div>
-                            <div class="flex items-center justify-between input-row p-2.5 rounded-xl border-l-4 border-red-400">
-                                <span class="text-[10px] font-bold uppercase text-white">Take-off (s)</span>
-                                <input type="number" id="manualEnd" step="0.001" class="w-20 bg-transparent text-right text-xs font-bold text-white outline-none">
+                            <div class="flex items-center justify-between">
+                                <span class="sidebar-label">Take-off (s)</span>
+                                <input type="number" id="manualEnd" step="0.001" class="w-24 bg-gray-50 border border-gray-300 p-2.5 rounded-xl text-right text-xs font-bold text-primary-dark outline-none focus:border-primary">
                             </div>
                         </div>
-                        <button id="reprocessBtn" class="w-full bg-white text-primary text-[10px] font-bold py-3.5 rounded-xl hover:bg-accent transition-all shadow-lg mt-5 uppercase tracking-tighter">
-                            🔄 Re-calculate Analysis
+                        <button id="reprocessBtn" class="w-full mt-8 bg-primary text-white text-[11px] font-bold py-4 rounded-xl hover:bg-primary-dark transition-all uppercase tracking-widest shadow-md">
+                            🔄 Re-calculate
                         </button>
                     </div>
                 </div>
                 
-                <button id="exportBtn" class="w-full bg-emerald-700 text-white font-bold py-4 rounded-[1.5rem] hover:bg-emerald-800 transition-all hidden text-[11px] uppercase tracking-widest shadow-xl">
-                    📥 Download CSV Report
+                <button id="exportBtn" class="w-full bg-emerald-600 text-white font-bold py-5 rounded-[2rem] hover:bg-emerald-700 transition-all hidden text-xs uppercase tracking-[0.2em] shadow-lg">
+                    📥 Download Report
                 </button>
             </aside>
 
             <!-- Main Dashboard -->
-            <main class="lg:col-span-9 space-y-4">
+            <main class="lg:col-span-9 space-y-10">
                 
                 <!-- Reporting Table Area -->
-                <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-primary/10">
-                    <h3 class="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-primary">
-                        <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
-                        Phase-Specific Metrics Report
-                    </h3>
-                    <div id="tableContainer" class="overflow-x-auto rounded-xl">
-                        <p class="text-sm text-primary/60 italic py-10 text-center font-semibold">Please import CSV data to view the report.</p>
-                        <!-- Table injected via JS -->
+                <div class="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-sm font-bold uppercase tracking-[0.25em] text-primary-dark">
+                            Metric Analysis Report
+                        </h3>
+                        <div class="h-1 w-20 bg-accent rounded-full"></div>
+                    </div>
+                    
+                    <div id="tableContainer" class="overflow-x-auto">
+                        <div class="text-center py-20">
+                            <p class="text-sm text-primary-dark opacity-40 italic font-medium tracking-wide">Waiting for biomechanical data input...</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Charts Container -->
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    <div class="bg-white rounded-[2rem] p-4 shadow-xl border border-primary/10 xl:col-span-2">
-                        <div id="forceChart" class="w-full h-[380px]"></div>
+                <div class="grid grid-cols-1 gap-10">
+                    <div class="bg-white rounded-[3rem] p-8 border border-gray-100 shadow-sm">
+                        <div id="forceChart" class="w-full h-[400px]"></div>
                     </div>
-                    <div class="bg-white rounded-[2rem] p-4 shadow-xl border border-primary/10 xl:col-span-2">
-                        <div id="deficitChart" class="w-full h-[220px]"></div>
+                    <div class="bg-white rounded-[3rem] p-8 border border-gray-100 shadow-sm">
+                        <div id="deficitChart" class="w-full h-[250px]"></div>
                     </div>
                 </div>
             </main>
@@ -186,13 +240,29 @@
         const regex = /(-?\d+\.\d+)/;
         let rawData = [];
         let reportData = {};
-        const needle = document.getElementById('needle');
-        const statusText = document.getElementById('statusText');
 
-        function updateMeter(percent, text) {
-            const angle = -90 + (percent * 1.8);
-            needle.style.transform = `rotate(${angle}deg)`;
-            statusText.innerText = text;
+        // Traffic Light Logic
+        function setSignal(state, progress, text) {
+            const red = document.getElementById('lightRed');
+            const yellow = document.getElementById('lightYellow');
+            const green = document.getElementById('lightGreen');
+            const progBar = document.getElementById('statusProgress');
+            const statusLabel = document.getElementById('statusText');
+
+            red.classList.remove('light-active-red');
+            yellow.classList.remove('light-active-yellow');
+            green.classList.remove('light-active-green');
+
+            if (state === 'waiting') {
+                red.classList.add('light-active-red');
+            } else if (state === 'processing') {
+                yellow.classList.add('light-active-yellow');
+            } else if (state === 'done') {
+                green.classList.add('light-active-green');
+            }
+
+            progBar.style.width = progress + '%';
+            statusLabel.innerText = text;
         }
 
         function cleanValue(val) {
@@ -216,13 +286,13 @@
         document.getElementById('fileInput').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
-            document.getElementById('fileName').innerText = file.name;
-            updateMeter(20, "Reading...");
+            document.getElementById('fileNameDisplay').innerText = file.name;
+            setSignal('processing', 30, "Reading CSV...");
             Papa.parse(file, {
                 header: true, skipEmptyLines: true,
                 complete: function(results) {
                     rawData = results.data;
-                    updateMeter(50, "Parsed");
+                    setSignal('processing', 50, "Synthesizing...");
                     processBiomechanics(true);
                 }
             });
@@ -232,7 +302,7 @@
 
         function processBiomechanics(isAuto) {
             if (rawData.length === 0) return;
-            updateMeter(70, "Analysing...");
+            setSignal('processing', 80, "Analyzing...");
 
             const filterSize = parseInt(document.getElementById('filterSize').value);
             const threshold = parseFloat(document.getElementById('threshold').value);
@@ -270,12 +340,12 @@
                 tIdx = sf.findIndex((v, i) => i > sIdx && v < 20);
                 if (tIdx < 0) tIdx = sf.length - 1;
 
-                let v = 0, minV = 0;
+                let v_temp = 0, minV_temp = 0;
                 zIdx = sIdx;
                 for (let i = sIdx; i <= tIdx; i++) {
-                    v += ((sf[i] - bw) / mass) * dt;
-                    if (v < minV) {
-                        minV = v;
+                    v_temp += ((sf[i] - bw) / mass) * dt;
+                    if (v_temp < minV_temp) {
+                        minV_temp = v_temp;
                         zIdx = i;
                     }
                 }
@@ -291,10 +361,14 @@
 
             const bufferSamples = Math.floor(0.05 / dt);
             lIdx = sf.findIndex((v, i) => i > tIdx + bufferSamples && v > 20);
+            if (lIdx < 0) lIdx = sf.length - 1;
+
+            // Zeroing flight phase for clean integration
+            for (let i = tIdx; i < lIdx; i++) {
+                sf[i] = 0; sl[i] = 0; sr[i] = 0;
+            }
 
             let vArr = [], v = 0, currentDisplacement = 0, maxDisplacement = 0;
-            
-            // Phase Integration
             let eccPeakVel = 0, eccPeakPower = 0, eccPowerSum = 0;
             let eccForceArr = sf.slice(sIdx, zIdx + 1);
             let eccPeakForce = Math.max(...eccForceArr);
@@ -303,8 +377,8 @@
 
             let conPeakVel = 0, conPeakPower = 0, conPowerSum = 0;
             let conForceArr = sf.slice(zIdx, tIdx + 1);
-            let conPeakForce = Math.max(...conForceArr);
-            let conMeanForce = conForceArr.reduce((a,b)=>a+b,0) / conForceArr.length;
+            let conPeakForce = conForceArr.length > 0 ? Math.max(...conForceArr) : 0;
+            let conMeanForce = conForceArr.length > 0 ? (conForceArr.reduce((a,b)=>a+b,0) / conForceArr.length) : 0;
             let conDuration = t[tIdx] - t[zIdx];
 
             for (let i = sIdx; i <= tIdx; i++) {
@@ -331,7 +405,7 @@
             const cmDepth = Math.abs(maxDisplacement) * 100;
 
             let flightTime = 0, peakLandingForce = 0;
-            if (lIdx > 0 && lIdx < sf.length) {
+            if (lIdx > tIdx && lIdx < sf.length) {
                 flightTime = t[lIdx] - t[tIdx];
                 const landingEndIdx = Math.min(sf.length, lIdx + Math.floor(0.5 / dt));
                 let landingForceArr = sf.slice(lIdx, landingEndIdx);
@@ -339,7 +413,7 @@
             }
 
             reportData = {
-                "Overall Performance": {
+                "General Overview": {
                     "Jump Height (Imp-Mom)": { val: jh.toFixed(1), unit: "cm" },
                     "Contraction Time": { val: ct.toFixed(2), unit: "s" },
                     "RSI-Modified": { val: rsi.toFixed(2), unit: "m/s" },
@@ -373,29 +447,35 @@
                 return (diff / Math.max(sl[i], sr[i])) * 100;
             });
 
-            // Plotly Configuration with Open Sans
+            // Plotly Configuration
             const layoutBase = {
                 font: { family: 'Open Sans', color: '#1a0f30' },
                 paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-                margin: { t: 50, b: 40, l: 50, r: 20 },
-                xaxis: { gridcolor: '#e2e2e2', titlefont: { size: 10, weight: 700 } },
-                yaxis: { gridcolor: '#e2e2e2', titlefont: { size: 10, weight: 700 } }
+                margin: { t: 60, b: 60, l: 60, r: 20 },
+                xaxis: { gridcolor: '#f3f4f6', titlefont: { size: 11, weight: 700 }, tickfont: {size: 10} },
+                yaxis: { gridcolor: '#f3f4f6', titlefont: { size: 11, weight: 700 }, tickfont: {size: 10} }
             };
 
+            const eccLabelX = t[sIdx] + (t[zIdx] - t[sIdx]) / 2;
+            const conLabelX = t[zIdx] + (t[tIdx] - t[zIdx]) / 2;
+            const maxForce = Math.max(...sf);
+
             Plotly.newPlot('forceChart', [
-                { x: t, y: sl, name: 'Left', line: { color: '#3b82f6', width: 2 } },
-                { x: t, y: sr, name: 'Right', line: { color: '#ef4444', width: 2 } },
-                { x: t, y: sf, name: 'Total', line: { color: '#4d2994', width: 4 } }
+                { x: t, y: sl, name: 'Left Limb', line: { color: '#818cf8', width: 2 } },
+                { x: t, y: sr, name: 'Right Limb', line: { color: '#f87171', width: 2 } },
+                { x: t, y: sf, name: 'Total Force', line: { color: '#4d2994', width: 3.5 } }
             ], {
                 ...layoutBase,
-                title: { text: 'FORCE-TIME TRACE', font: { size: 14, weight: 700 } },
+                title: { text: 'FORCE-TIME ANALYSIS', font: { size: 15, weight: 700 }, x: 0 },
                 shapes: [
-                    { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: Math.max(...sf)*1.1, fillcolor: 'rgba(77, 41, 148, 0.08)', line: {width: 0} },
-                    { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: Math.max(...sf)*1.1, fillcolor: 'rgba(34, 197, 94, 0.08)', line: {width: 0} }
+                    { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: maxForce * 1.15, fillcolor: 'rgba(77, 41, 148, 0.05)', line: {width: 0} },
+                    { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: maxForce * 1.15, fillcolor: 'rgba(34, 197, 94, 0.05)', line: {width: 0} }
                 ],
                 annotations: [
-                    { x: t[sIdx], y: bw, text: 'START', showarrow: true, font: {size: 10, weight: 700} },
-                    { x: t[tIdx], y: 100, text: 'TAKE-OFF', showarrow: true, font: {size: 10, color: 'red', weight: 700} }
+                    { x: eccLabelX, y: maxForce * 1.05, text: 'ECCENTRIC', showarrow: false, font: {size: 10, weight: 700, color: '#4d2994'}, xanchor: 'center' },
+                    { x: conLabelX, y: maxForce * 1.05, text: 'CONCENTRIC', showarrow: false, font: {size: 10, weight: 700, color: '#22c55e'}, xanchor: 'center' },
+                    { x: t[sIdx], y: bw, text: 'START', showarrow: true, font: {size: 10, weight: 700}, ax: 0, ay: -30 },
+                    { x: t[tIdx], y: 100, text: 'TAKE-OFF', showarrow: true, font: {size: 10, color: 'red', weight: 700}, ax: 0, ay: -40 }
                 ]
             }, { responsive: true, displayModeBar: false });
 
@@ -407,29 +487,29 @@
                 }
             ], {
                 ...layoutBase,
-                title: { text: 'L/R ASYMMETRY % (Positive = Left Dominant)', font: { size: 12, weight: 700 } },
-                yaxis: { title: '%', range: [-60, 60], zeroline: true, zerolinecolor: '#4d2994', zerolinewidth: 2 },
-                shapes: [{ type: 'rect', x0: t[sIdx], x1: t[tIdx], y0: -threshold, y1: threshold, fillcolor: 'rgba(34, 197, 94, 0.18)', line: {width: 0} }]
+                title: { text: 'L/R ASYMMETRY % (Threshold Alert)', font: { size: 13, weight: 700 }, x: 0 },
+                yaxis: { title: 'Deficit %', range: [-55, 55], zeroline: true, zerolinecolor: '#4d2994', zerolinewidth: 2 },
+                shapes: [{ type: 'rect', x0: t[0], x1: t[t.length - 1], y0: -threshold, y1: threshold, fillcolor: 'rgba(34, 197, 94, 0.15)', line: {width: 0} }]
             }, { responsive: true, displayModeBar: false });
 
-            updateMeter(100, "Complete");
+            setSignal('done', 100, "Analysis Complete");
             document.getElementById('exportBtn').classList.remove('hidden');
         }
 
         function updateTableUI() {
             const container = document.getElementById('tableContainer');
-            let tableHTML = '<table class="w-full text-left border-collapse report-table shadow-md overflow-hidden">';
-            const phases = ["Overall Performance", "Eccentric Phase", "Concentric Phase", "Landing Phase"];
+            let tableHTML = '<table class="w-full text-left border-collapse report-table shadow-sm">';
+            const phases = ["General Overview", "Eccentric Phase", "Concentric Phase", "Landing Phase"];
             
             phases.forEach(phase => {
                 if(!reportData[phase]) return;
-                tableHTML += `<tr><th colspan="3" class="phase-header">${phase}</th></tr>`;
+                tableHTML += `<tr><th colspan="3" class="phase-header uppercase font-extrabold text-primary">${phase}</th></tr>`;
                 Object.entries(reportData[phase]).forEach(([metric, data]) => {
                     tableHTML += `
                         <tr>
-                            <td class="w-1/2 text-primary/95 font-semibold">${metric}</td>
-                            <td class="w-1/4 text-right text-primary font-bold text-lg">${data.val}</td>
-                            <td class="w-1/4 text-left text-[11px] uppercase font-bold text-primary/60 pl-2">${data.unit}</td>
+                            <td class="w-1/2 text-primary-dark font-bold">${metric}</td>
+                            <td class="w-1/4 text-right text-primary font-extrabold text-xl tracking-tight">${data.val}</td>
+                            <td class="w-1/4 text-left text-[11px] uppercase font-bold text-primary-dark opacity-70 pl-4 tracking-widest">${data.unit}</td>
                         </tr>
                     `;
                 });
@@ -441,7 +521,7 @@
         document.getElementById('exportBtn').onclick = () => {
             let csvRows = [
                 ["PRIMA MOTION BIOMECHANICS REPORT"],
-                ["Device: JUMPANZ V1.5 PRO"],
+                ["Device: JUMPANZ V1.7 PRO"],
                 ["Date:", new Date().toLocaleString()],
                 [""],
                 ["PHASE", "METRIC", "VALUE", "UNIT"]
@@ -456,7 +536,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `JUMPANZ_Report_V1.5_${new Date().getTime()}.csv`);
+            link.setAttribute("download", `Prima_Motion_JUMPANZ_Report_V1.7.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
