@@ -3,107 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUMPANZ V1.2 PRO - Prima Motion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <title>JUMPANZ V1.5 PRO - Prima Motion</title>
+    <!-- Import Fonts: Open Sans for UI and Josefin Sans for Brand -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Josefin+Sans:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Josefin Sans', sans-serif; background-color: #efebe2; color: #4d2994; margin: 0; padding: 0; }
-        .brand-text { color: #4d2994; font-weight: 700; text-transform: uppercase; }
-        .bg-primary { background-color: #4d2994; }
-        .bg-accent { background-color: #D0c3f1; }
-        .border-primary { border-color: #4d2994; }
+        :root {
+            --primary: #4d2994;
+            --accent: #D0c3f1;
+            --bg: #f8f7f2;
+            --text-main: #1a0f30; /* ปรับให้เข้มที่สุดเพื่อ Contrast สูงสุด */
+        }
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            -webkit-font-smoothing: antialiased;
+        }
         
-        /* Vintage Meter Styles */
-        .meter-container { position: relative; width: 160px; height: 80px; overflow: hidden; margin: 0 auto; }
-        .meter-bg { width: 160px; height: 160px; border-radius: 50%; border: 6px solid #4d2994; background: #fff; position: absolute; top: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
-        .meter-needle { width: 3px; height: 70px; background: #e63946; position: absolute; bottom: 0; left: 78px; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; border-radius: 2px; }
-        .meter-center { width: 12px; height: 12px; background: #4d2994; border-radius: 50%; position: absolute; bottom: -6px; left: 74px; z-index: 11; }
+        .brand-text { 
+            font-family: 'Josefin Sans', sans-serif; 
+            font-weight: 700; 
+            text-transform: uppercase;
+        }
+
+        .meter-container { position: relative; width: 140px; height: 70px; overflow: hidden; margin: 0 auto; }
+        .meter-bg { width: 140px; height: 140px; border-radius: 50%; border: 5px solid var(--primary); background: #fff; position: absolute; top: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+        .meter-needle { width: 3px; height: 60px; background: #ef4444; position: absolute; bottom: 0; left: 68.5px; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; border-radius: 2px; }
+        .meter-center { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; position: absolute; bottom: -5px; left: 65px; z-index: 11; }
+        
+        /* Table Styles Optimized for Maximum Contrast */
+        .report-table th { 
+            background-color: var(--primary); 
+            padding: 14px 12px; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            font-weight: 700; 
+            color: white; 
+        }
+        .report-table td { 
+            border-bottom: 1px solid rgba(77, 41, 148, 0.2); 
+            padding: 14px 12px; 
+            font-size: 14px; 
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .report-table tr:hover { background-color: rgba(77, 41, 148, 0.04); }
+        .phase-header { 
+            background-color: #2d1a50 !important; 
+            color: white !important; 
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px !important; 
+            letter-spacing: 0.12em; 
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button { display: none; }
+        
+        /* Sidebar Input Row Styles */
+        .input-row {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        .input-row:focus-within {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent);
+        }
     </style>
 </head>
-<body class="p-4 md:p-6 lg:p-8">
+<body class="p-4 md:p-6">
 
     <div class="max-w-7xl mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-4 border-primary pb-4">
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b-2 border-primary pb-6">
             <div class="text-center md:text-left">
-                <h1 class="text-4xl lg:text-5xl brand-text tracking-tighter">JUMPANZ <span class="text-xl lg:text-2xl opacity-60 italic">V1.2 PRO</span></h1>
-                <p class="text-[10px] font-bold tracking-[0.3em] mt-1">PRIMA MOTION BIOMECHANICS ANALYTICS</p>
+                <h1 class="text-5xl brand-text tracking-tighter text-primary">JUMPANZ <span class="text-xl font-normal opacity-60 italic">V1.5 PRO</span></h1>
+                <!-- "PRIMA MOTION" is Josefin Sans Bold as requested -->
+                <p class="brand-text text-[12px] tracking-[0.3em] mt-1 text-primary">PRIMA MOTION <span class="font-normal opacity-80">BIOMECHANICS ANALYTICS</span></p>
             </div>
             
-            <div class="mt-4 md:mt-0 text-center">
+            <div class="mt-6 md:mt-0 flex items-center gap-6">
+                <div class="text-right hidden md:block">
+                    <p id="statusText" class="text-[10px] font-bold uppercase text-primary tracking-widest">System Ready</p>
+                    <p id="fileName" class="text-[10px] italic text-primary/70 font-semibold">No file loaded</p>
+                </div>
                 <div class="meter-container">
                     <div class="meter-bg"></div>
                     <div id="needle" class="meter-needle"></div>
                     <div class="meter-center"></div>
                 </div>
-                <p id="statusText" class="text-[9px] font-bold uppercase mt-1">System Ready</p>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <aside class="space-y-4">
-                <div class="bg-accent p-6 rounded-[2rem] shadow-xl border-2 border-primary space-y-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Sidebar Controls -->
+            <aside class="lg:col-span-3 space-y-4">
+                <div class="bg-primary text-white p-6 rounded-[2rem] shadow-xl space-y-6">
                     <div>
-                        <label class="block text-center bg-primary text-white font-bold py-3 rounded-xl cursor-pointer hover:opacity-90 transition-all text-xs tracking-widest uppercase">
-                            Load CSV Data
+                        <label class="block text-center bg-white text-primary font-bold py-3.5 px-4 rounded-2xl cursor-pointer hover:bg-accent transition-all text-xs tracking-widest uppercase shadow-xl">
+                            📂 Import CSV Data
                             <input type="file" id="fileInput" accept=".csv" class="hidden">
                         </label>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-bold uppercase mb-1">Smooth</label>
-                            <select id="filterSize" class="w-full p-2.5 bg-white border border-primary rounded-xl text-xs font-bold outline-none">
-                                <option value="1">Raw</option>
-                                <option value="7">Soft</option>
-                                <option value="15" selected>Medium</option>
-                                <option value="31">Hard</option>
+                            <label class="block text-[10px] font-bold uppercase mb-1.5 text-white tracking-wider">Smoothing</label>
+                            <select id="filterSize" class="w-full p-2.5 bg-primary border-2 border-white/30 rounded-xl text-xs font-bold outline-none focus:border-white">
+                                <option value="1">Raw Data</option>
+                                <option value="7">Low Filter</option>
+                                <option value="15" selected>Standard</option>
+                                <option value="31">High Filter</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold uppercase mb-1">Deficit %</label>
-                            <input type="number" id="threshold" value="15" class="w-full p-2.5 border border-primary rounded-xl text-xs font-bold text-center outline-none">
+                            <label class="block text-[10px] font-bold uppercase mb-1.5 text-white tracking-wider">Asym. Alert %</label>
+                            <input type="number" id="threshold" value="15" class="w-full p-2.5 bg-primary border-2 border-white/30 rounded-xl text-xs font-bold text-center outline-none focus:border-white">
                         </div>
                     </div>
 
-                    <div class="h-px bg-primary/20"></div>
-
-                    <div class="space-y-3">
-                        <label class="block text-[10px] font-bold uppercase text-primary italic underline tracking-wider">Manual Phase Editor (sec)</label>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[9px] font-bold opacity-70 uppercase">Start</span>
-                                <input type="number" id="manualStart" step="0.001" class="w-24 p-1.5 border border-primary rounded-lg text-xs font-bold bg-white text-center">
+                    <div class="pt-6 border-t border-white/20">
+                        <!-- Heading color changed to Accent for clarity -->
+                        <p class="text-[11px] font-bold uppercase mb-4 text-accent italic tracking-[0.15em]">Manual Phase Adjust</p>
+                        <div class="space-y-2.5">
+                            <!-- Increased contrast for input rows -->
+                            <div class="flex items-center justify-between input-row p-2.5 rounded-xl">
+                                <span class="text-[10px] font-bold uppercase text-white">Start (s)</span>
+                                <input type="number" id="manualStart" step="0.001" class="w-20 bg-transparent text-right text-xs font-bold text-white outline-none">
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[9px] font-bold opacity-70 uppercase">V=0 (Split)</span>
-                                <input type="number" id="manualSplit" step="0.001" class="w-24 p-1.5 border border-primary rounded-lg text-xs font-bold bg-white text-center">
+                            <div class="flex items-center justify-between input-row p-2.5 rounded-xl border-l-4 border-accent">
+                                <span class="text-[10px] font-bold uppercase text-white">V=0 (s)</span>
+                                <input type="number" id="manualSplit" step="0.001" class="w-20 bg-transparent text-right text-xs font-bold text-white outline-none">
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[9px] font-bold opacity-70 uppercase">Take-off</span>
-                                <input type="number" id="manualEnd" step="0.001" class="w-24 p-1.5 border border-primary rounded-lg text-xs font-bold bg-white text-center">
+                            <div class="flex items-center justify-between input-row p-2.5 rounded-xl border-l-4 border-red-400">
+                                <span class="text-[10px] font-bold uppercase text-white">Take-off (s)</span>
+                                <input type="number" id="manualEnd" step="0.001" class="w-20 bg-transparent text-right text-xs font-bold text-white outline-none">
                             </div>
                         </div>
-                        <button id="reprocessBtn" class="w-full bg-primary text-white text-[11px] font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md mt-2">
-                            RE-PROCESS ANALYSIS
+                        <button id="reprocessBtn" class="w-full bg-white text-primary text-[10px] font-bold py-3.5 rounded-xl hover:bg-accent transition-all shadow-lg mt-5 uppercase tracking-tighter">
+                            🔄 Re-calculate Analysis
                         </button>
                     </div>
                 </div>
                 
-                <button id="exportBtn" class="w-full border-4 border-emerald-600 text-emerald-600 font-bold py-4 rounded-[2rem] hover:bg-emerald-600 hover:text-white transition-all hidden text-xs uppercase tracking-widest shadow-lg">
-                    Download Analysis
+                <button id="exportBtn" class="w-full bg-emerald-700 text-white font-bold py-4 rounded-[1.5rem] hover:bg-emerald-800 transition-all hidden text-[11px] uppercase tracking-widest shadow-xl">
+                    📥 Download CSV Report
                 </button>
             </aside>
 
-            <main class="lg:col-span-3 space-y-4 pb-12">
-                <div id="metrics" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Main Dashboard -->
+            <main class="lg:col-span-9 space-y-4">
+                
+                <!-- Reporting Table Area -->
+                <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-primary/10">
+                    <h3 class="text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-primary">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                        Phase-Specific Metrics Report
+                    </h3>
+                    <div id="tableContainer" class="overflow-x-auto rounded-xl">
+                        <p class="text-sm text-primary/60 italic py-10 text-center font-semibold">Please import CSV data to view the report.</p>
+                        <!-- Table injected via JS -->
                     </div>
+                </div>
 
-                <div class="bg-white border-4 border-primary rounded-[2.5rem] p-4 shadow-2xl space-y-4">
-                    <div id="forceChart" class="w-full h-[380px]"></div>
-                    <div class="h-1 bg-accent mx-10 rounded-full opacity-50"></div>
-                    <div id="deficitChart" class="w-full h-[260px]"></div>
+                <!-- Charts Container -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-[2rem] p-4 shadow-xl border border-primary/10 xl:col-span-2">
+                        <div id="forceChart" class="w-full h-[380px]"></div>
+                    </div>
+                    <div class="bg-white rounded-[2rem] p-4 shadow-xl border border-primary/10 xl:col-span-2">
+                        <div id="deficitChart" class="w-full h-[220px]"></div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -112,7 +185,7 @@
     <script>
         const regex = /(-?\d+\.\d+)/;
         let rawData = [];
-        let summaryMetrics = [];
+        let reportData = {};
         const needle = document.getElementById('needle');
         const statusText = document.getElementById('statusText');
 
@@ -125,14 +198,8 @@
         function cleanValue(val) {
             if (val === null || val === undefined) return null;
             let s = val.toString().trim();
-            let parts = s.split(/\s+/);
-            let target = parts[parts.length - 1];
-            let match = target.match(regex);
-            if (match) {
-                let num = parseFloat(match[1]);
-                return Math.abs(num) < 10000 ? num : null;
-            }
-            return null;
+            let match = s.match(regex);
+            return match ? parseFloat(match[1]) : null;
         }
 
         function movingAverage(d, s) {
@@ -149,12 +216,13 @@
         document.getElementById('fileInput').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
-            updateMeter(20, "Reading CSV...");
+            document.getElementById('fileName').innerText = file.name;
+            updateMeter(20, "Reading...");
             Papa.parse(file, {
                 header: true, skipEmptyLines: true,
                 complete: function(results) {
                     rawData = results.data;
-                    updateMeter(50, "Data Parsed");
+                    updateMeter(50, "Parsed");
                     processBiomechanics(true);
                 }
             });
@@ -164,7 +232,7 @@
 
         function processBiomechanics(isAuto) {
             if (rawData.length === 0) return;
-            updateMeter(75, "Analysing...");
+            updateMeter(70, "Analysing...");
 
             const filterSize = parseInt(document.getElementById('filterSize').value);
             const threshold = parseFloat(document.getElementById('threshold').value);
@@ -179,9 +247,9 @@
 
                 if (!isNaN(time)) {
                     if (total === null && left !== null && right !== null) total = left + right;
-                    if (left === null && total !== null && right !== null) left = total - right;
+                    if (left === null && total !== null && right !== null) left = total * 0.5;
                     if (right === null && total !== null && left !== null) right = total - left;
-                    t.push(time); f.push(total); l.push(left || 0); r.push(right || 0);
+                    t.push(time); f.push(total || 0); l.push(left || 0); r.push(right || 0);
                 }
             });
 
@@ -189,21 +257,28 @@
             const sl = movingAverage(l, filterSize);
             const sr = movingAverage(r, filterSize);
             const g = 9.80665, dt = t[1] - t[0];
-            const bw = sf.slice(0, 500).reduce((a, b) => a + b, 0) / 500;
+
+            const quietSamples = Math.floor(0.5 / dt);
+            const bw = sf.slice(0, quietSamples).reduce((a, b) => a + b, 0) / quietSamples;
             const mass = bw / g;
 
-            let sIdx, zIdx, tIdx;
+            let sIdx, zIdx, tIdx, lIdx;
 
             if (isAuto) {
-                sIdx = sf.findIndex(v => Math.abs(v - bw) > 25);
-                tIdx = sf.findIndex((v, i) => i > sIdx && v < 30);
-                let v = 0, vArr = [];
-                for (let i = 0; i < sf.length; i++) {
-                    v = (i >= sIdx && i <= tIdx) ? v + ((sf[i] - bw) / mass) * dt : 0;
-                    vArr.push(v);
-                }
+                sIdx = sf.findIndex(v => Math.abs(v - bw) > (bw * 0.05));
+                if (sIdx < 0) sIdx = 0;
+                tIdx = sf.findIndex((v, i) => i > sIdx && v < 20);
+                if (tIdx < 0) tIdx = sf.length - 1;
+
+                let v = 0, minV = 0;
                 zIdx = sIdx;
-                for (let i = sIdx; i < tIdx; i++) if (vArr[i-1] < 0 && vArr[i] >= 0) { zIdx = i; break; }
+                for (let i = sIdx; i <= tIdx; i++) {
+                    v += ((sf[i] - bw) / mass) * dt;
+                    if (v < minV) {
+                        minV = v;
+                        zIdx = i;
+                    }
+                }
                 
                 document.getElementById('manualStart').value = t[sIdx].toFixed(3);
                 document.getElementById('manualSplit').value = t[zIdx].toFixed(3);
@@ -214,86 +289,174 @@
                 tIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualEnd').value));
             }
 
-            let curV = 0, maxV = 0, pwrMax = 0;
+            const bufferSamples = Math.floor(0.05 / dt);
+            lIdx = sf.findIndex((v, i) => i > tIdx + bufferSamples && v > 20);
+
+            let vArr = [], v = 0, currentDisplacement = 0, maxDisplacement = 0;
+            
+            // Phase Integration
+            let eccPeakVel = 0, eccPeakPower = 0, eccPowerSum = 0;
+            let eccForceArr = sf.slice(sIdx, zIdx + 1);
+            let eccPeakForce = Math.max(...eccForceArr);
+            let eccMeanForce = eccForceArr.reduce((a,b)=>a+b,0) / eccForceArr.length;
+            let eccDuration = t[zIdx] - t[sIdx];
+
+            let conPeakVel = 0, conPeakPower = 0, conPowerSum = 0;
+            let conForceArr = sf.slice(zIdx, tIdx + 1);
+            let conPeakForce = Math.max(...conForceArr);
+            let conMeanForce = conForceArr.reduce((a,b)=>a+b,0) / conForceArr.length;
+            let conDuration = t[tIdx] - t[zIdx];
+
             for (let i = sIdx; i <= tIdx; i++) {
-                curV += ((sf[i] - bw) / mass) * dt;
-                if (curV > maxV) maxV = curV;
-                let instPwr = sf[i] * Math.abs(curV);
-                if (instPwr > pwrMax) pwrMax = instPwr;
+                v += ((sf[i] - bw) / mass) * dt;
+                vArr.push(v);
+                currentDisplacement += v * dt;
+                let pwr = sf[i] * v;
+
+                if (i <= zIdx) {
+                    if (v < eccPeakVel) eccPeakVel = v;
+                    if (pwr < eccPeakPower) eccPeakPower = pwr; 
+                    eccPowerSum += pwr;
+                    if (currentDisplacement < maxDisplacement) maxDisplacement = currentDisplacement;
+                } else {
+                    if (v > conPeakVel) conPeakVel = v;
+                    if (pwr > conPeakPower) conPeakPower = pwr;
+                    conPowerSum += pwr;
+                }
             }
 
-            const jh = (Math.pow(maxV, 2) / (2 * g)) * 100;
+            const jh = (Math.pow(conPeakVel, 2) / (2 * g)) * 100;
             const ct = t[tIdx] - t[sIdx];
             const rsi = (jh / 100) / ct;
+            const cmDepth = Math.abs(maxDisplacement) * 100;
 
-            summaryMetrics = [
-                { label: "Jump Height", val: jh.toFixed(1) + " cm" },
-                { label: "Peak Force", val: Math.max(...sf).toFixed(0) + " N" },
-                { label: "Peak Power", val: pwrMax.toFixed(0) + " W" },
-                { label: "RSI-Mod", val: rsi.toFixed(3) },
-                { label: "Body Mass", val: (mass).toFixed(1) + " kg" },
-                { label: "Contract", val: ct.toFixed(2) + " s" }
-            ];
-            updateMetricsUI(summaryMetrics);
+            let flightTime = 0, peakLandingForce = 0;
+            if (lIdx > 0 && lIdx < sf.length) {
+                flightTime = t[lIdx] - t[tIdx];
+                const landingEndIdx = Math.min(sf.length, lIdx + Math.floor(0.5 / dt));
+                let landingForceArr = sf.slice(lIdx, landingEndIdx);
+                peakLandingForce = landingForceArr.length > 0 ? Math.max(...landingForceArr) : 0;
+            }
 
-            const deficits = sf.map((v, i) => v < 50 ? 0 : ((sl[i] - sr[i]) / Math.max(sl[i], sr[i])) * 100);
+            reportData = {
+                "Overall Performance": {
+                    "Jump Height (Imp-Mom)": { val: jh.toFixed(1), unit: "cm" },
+                    "Contraction Time": { val: ct.toFixed(2), unit: "s" },
+                    "RSI-Modified": { val: rsi.toFixed(2), unit: "m/s" },
+                    "Countermovement Depth": { val: cmDepth.toFixed(1), unit: "cm" }
+                },
+                "Eccentric Phase": {
+                    "Duration": { val: eccDuration.toFixed(2), unit: "s" },
+                    "Peak Force": { val: eccPeakForce.toFixed(0), unit: "N" },
+                    "Mean Force": { val: eccMeanForce.toFixed(0), unit: "N" },
+                    "Peak Power (Abs)": { val: Math.abs(eccPeakPower).toFixed(0), unit: "W" },
+                    "Peak Velocity (Abs)": { val: Math.abs(eccPeakVel).toFixed(2), unit: "m/s" }
+                },
+                "Concentric Phase": {
+                    "Duration": { val: conDuration.toFixed(2), unit: "s" },
+                    "Peak Force": { val: conPeakForce.toFixed(0), unit: "N" },
+                    "Mean Force": { val: conMeanForce.toFixed(0), unit: "N" },
+                    "Peak Power": { val: conPeakPower.toFixed(0), unit: "W" },
+                    "Peak Velocity": { val: conPeakVel.toFixed(2), unit: "m/s" }
+                },
+                "Landing Phase": {
+                    "Flight Time": { val: flightTime > 0 ? flightTime.toFixed(2) : "N/A", unit: "s" },
+                    "Peak Landing Force": { val: peakLandingForce > 0 ? peakLandingForce.toFixed(0) : "N/A", unit: "N" }
+                }
+            };
 
-            // Chart 1: Force Trace
+            updateTableUI();
+
+            const deficits = sf.map((v, i) => {
+                if (v < 50) return 0;
+                const diff = sl[i] - sr[i];
+                return (diff / Math.max(sl[i], sr[i])) * 100;
+            });
+
+            // Plotly Configuration with Open Sans
+            const layoutBase = {
+                font: { family: 'Open Sans', color: '#1a0f30' },
+                paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                margin: { t: 50, b: 40, l: 50, r: 20 },
+                xaxis: { gridcolor: '#e2e2e2', titlefont: { size: 10, weight: 700 } },
+                yaxis: { gridcolor: '#e2e2e2', titlefont: { size: 10, weight: 700 } }
+            };
+
             Plotly.newPlot('forceChart', [
-                { x: t, y: sl, name: 'Left', type: 'scattergl', line: { color: '#3b82f6', width: 1.5 } },
-                { x: t, y: sr, name: 'Right', type: 'scattergl', line: { color: '#ef4444', width: 1.5 } },
-                { x: t, y: sf, name: 'Total', type: 'scattergl', line: { color: '#4d2994', width: 3 } }
+                { x: t, y: sl, name: 'Left', line: { color: '#3b82f6', width: 2 } },
+                { x: t, y: sr, name: 'Right', line: { color: '#ef4444', width: 2 } },
+                { x: t, y: sf, name: 'Total', line: { color: '#4d2994', width: 4 } }
             ], {
-                margin: { t: 30, b: 30, l: 50, r: 10 }, hovermode: 'x unified',
-                xaxis: { title: 'Time (s)', gridcolor: '#eee' },
-                yaxis: { title: 'Force (N)', gridcolor: '#eee' },
+                ...layoutBase,
+                title: { text: 'FORCE-TIME TRACE', font: { size: 14, weight: 700 } },
                 shapes: [
-                    { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: Math.max(...sf) * 1.1, fillcolor: 'rgba(77, 41, 148, 0.1)', line: { width: 0 } },
-                    { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: Math.max(...sf) * 1.1, fillcolor: 'rgba(34, 197, 94, 0.1)', line: { width: 0 } }
+                    { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: Math.max(...sf)*1.1, fillcolor: 'rgba(77, 41, 148, 0.08)', line: {width: 0} },
+                    { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: Math.max(...sf)*1.1, fillcolor: 'rgba(34, 197, 94, 0.08)', line: {width: 0} }
                 ],
                 annotations: [
-                    { x: t[sIdx], y: bw, text: 'ECC', showarrow: false, font: { size: 10, color: '#4d2994', weight: 'bold' } },
-                    { x: t[zIdx], y: bw, text: 'CON', showarrow: false, font: { size: 10, color: '#22c55e', weight: 'bold' } }
+                    { x: t[sIdx], y: bw, text: 'START', showarrow: true, font: {size: 10, weight: 700} },
+                    { x: t[tIdx], y: 100, text: 'TAKE-OFF', showarrow: true, font: {size: 10, color: 'red', weight: 700} }
                 ]
-            }, { responsive: true });
+            }, { responsive: true, displayModeBar: false });
 
-            // Chart 2: Deficit Mapping
             Plotly.newPlot('deficitChart', [
-                { x: t, y: deficits, name: 'Deficit %', type: 'scattergl', line: { color: '#4d2994', width: 2 } }
+                { 
+                    x: t, y: deficits, name: 'Asymmetry', type: 'scatter', 
+                    fill: 'tozeroy', fillcolor: 'rgba(77, 41, 148, 0.15)',
+                    line: { color: '#4d2994', width: 2.5 } 
+                }
             ], {
-                margin: { t: 10, b: 40, l: 50, r: 10 }, hovermode: 'x unified',
-                xaxis: { title: 'Time (s)', gridcolor: '#eee' },
-                yaxis: { title: 'Deficit (%)', range: [-50, 50], zeroline: true, zerolinecolor: '#4d2994', zerolinewidth: 2 },
-                shapes: [
-                    { type: 'rect', x0: t[0], x1: t[t.length - 1], y0: -threshold, y1: threshold, fillcolor: 'rgba(34, 197, 94, 0.15)', line: { width: 0 } }
-                ]
-            }, { responsive: true });
+                ...layoutBase,
+                title: { text: 'L/R ASYMMETRY % (Positive = Left Dominant)', font: { size: 12, weight: 700 } },
+                yaxis: { title: '%', range: [-60, 60], zeroline: true, zerolinecolor: '#4d2994', zerolinewidth: 2 },
+                shapes: [{ type: 'rect', x0: t[sIdx], x1: t[tIdx], y0: -threshold, y1: threshold, fillcolor: 'rgba(34, 197, 94, 0.18)', line: {width: 0} }]
+            }, { responsive: true, displayModeBar: false });
 
-            updateMeter(100, "Analysis Finished");
+            updateMeter(100, "Complete");
             document.getElementById('exportBtn').classList.remove('hidden');
         }
 
-        function updateMetricsUI(m) {
-            const container = document.getElementById('metrics');
-            container.innerHTML = m.map(i => `
-                <div class="bg-white border-2 border-primary p-3 rounded-2xl text-center shadow-md">
-                    <p class="text-[8px] font-bold uppercase opacity-50 mb-1 tracking-widest">${i.label}</p>
-                    <p class="text-sm font-bold text-primary">${i.val}</p>
-                </div>`).join('');
+        function updateTableUI() {
+            const container = document.getElementById('tableContainer');
+            let tableHTML = '<table class="w-full text-left border-collapse report-table shadow-md overflow-hidden">';
+            const phases = ["Overall Performance", "Eccentric Phase", "Concentric Phase", "Landing Phase"];
+            
+            phases.forEach(phase => {
+                if(!reportData[phase]) return;
+                tableHTML += `<tr><th colspan="3" class="phase-header">${phase}</th></tr>`;
+                Object.entries(reportData[phase]).forEach(([metric, data]) => {
+                    tableHTML += `
+                        <tr>
+                            <td class="w-1/2 text-primary/95 font-semibold">${metric}</td>
+                            <td class="w-1/4 text-right text-primary font-bold text-lg">${data.val}</td>
+                            <td class="w-1/4 text-left text-[11px] uppercase font-bold text-primary/60 pl-2">${data.unit}</td>
+                        </tr>
+                    `;
+                });
+            });
+            tableHTML += '</table>';
+            container.innerHTML = tableHTML;
         }
 
-        // Functional Download Report
         document.getElementById('exportBtn').onclick = () => {
-            let csvRows = [["PRIMA MOTION BIOMECHANICS REPORT"], ["Generated:", new Date().toLocaleString()], [""]];
-            csvRows.push(["METRIC", "VALUE"]);
-            summaryMetrics.forEach(m => csvRows.push([m.label, m.val]));
-            
-            let csvContent = csvRows.map(row => row.join(",")).join("\n");
+            let csvRows = [
+                ["PRIMA MOTION BIOMECHANICS REPORT"],
+                ["Device: JUMPANZ V1.5 PRO"],
+                ["Date:", new Date().toLocaleString()],
+                [""],
+                ["PHASE", "METRIC", "VALUE", "UNIT"]
+            ];
+            for (const [phase, metrics] of Object.entries(reportData)) {
+                for (const [metricName, data] of Object.entries(metrics)) {
+                    csvRows.push([phase, metricName, data.val, data.unit]);
+                }
+            }
+            let csvContent = csvRows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `JUMPANZ_Report_${new Date().getTime()}.csv`);
+            link.setAttribute("download", `JUMPANZ_Report_V1.5_${new Date().getTime()}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
