@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUMPANZ V1.7 PRO - Prima Motion Technology</title>
-    <!-- Import Fonts -->
+    <title>JUMPANZ V1.7.1 PRO - Prima Motion Technology</title>
+    <!-- Import Fonts: Open Sans for UI and Josefin Sans for Brand -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Josefin+Sans:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
@@ -34,7 +34,7 @@
             text-transform: uppercase;
         }
 
-        /* Traffic Light Styles */
+        /* Traffic Light Signal Bulbs */
         .light-bulb {
             width: 14px;
             height: 14px;
@@ -47,7 +47,7 @@
         .light-active-yellow { background-color: var(--signal-yellow); box-shadow: 0 0 12px var(--signal-yellow); }
         .light-active-green { background-color: var(--signal-green); box-shadow: 0 0 12px var(--signal-green); }
 
-        /* Clean Table Styles */
+        /* Minimal Table Styling */
         .report-table th { 
             background-color: transparent; 
             padding: 16px 12px; 
@@ -59,7 +59,7 @@
             border-bottom: 2px solid var(--primary);
         }
         .report-table td { 
-            border-bottom: 1px solid #eee; 
+            border-bottom: 1px solid #f0f0f0; 
             padding: 16px 12px; 
             font-size: 14px; 
             font-weight: 600;
@@ -102,11 +102,11 @@
             letter-spacing: 0.05em;
         }
 
-        /* Image Placeholder Style if logo not found */
         .logo-box {
-            max-height: 96px;
-            max-width: 240px;
-            object-contain: contain;
+            height: 96px;
+            width: auto;
+            max-width: 280px;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -116,17 +116,17 @@
         <!-- Header Section -->
         <header class="flex flex-col md:flex-row justify-between items-center mb-12 border-b border-gray-100 pb-8">
             <div class="text-center md:text-left">
-                <h1 class="text-6xl brand-text tracking-tighter text-primary">JUMPANZ <span class="text-2xl font-normal opacity-30 italic">V1.7 PRO</span></h1>
+                <h1 class="text-6xl brand-text tracking-tighter text-primary">JUMPANZ <span class="text-2xl font-normal opacity-30 italic">V1.7.1 PRO</span></h1>
                 <p class="brand-text text-[14px] tracking-[0.2em] mt-2 text-primary-dark">PRIMA MOTION TECHNOLOGY</p>
                 <p class="text-[10px] italic font-semibold text-primary-dark opacity-50 mt-1 tracking-wider">Technology that unlocks scientific insight</p>
             </div>
             
             <div class="flex flex-col items-end gap-3 mt-8 md:mt-0">
-                <!-- โลโก้บริษัท Prima Motion Co., Ltd. -->
-                <img src="LOGO PRIMA PurpleYellow NOV2025.png" alt="PRIMA MOTION TECHNOLOGY" class="logo-box" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+                <!-- Updated Company Logo URL -->
+                <img src="https://assets.zyrosite.com/AwvkPRPaQNI9Dwxw/prima-logo-vector-color-YKbrek2a2qT61kV4.svg" alt="PRIMA MOTION TECHNOLOGY" class="logo-box" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
                 <div id="logo-fallback" class="hidden text-right">
                     <p class="brand-text text-primary text-xl">PRIMA MOTION</p>
-                    <p class="text-[8px] font-bold opacity-40">CO., LTD.</p>
+                    <p class="text-[8px] font-bold opacity-40">TECHNOLOGY</p>
                 </div>
                 <p id="fileNameDisplay" class="text-[12px] italic text-primary-dark opacity-60 font-bold tracking-tight">System Ready</p>
             </div>
@@ -139,7 +139,7 @@
                     <!-- 1. Upload Button -->
                     <div>
                         <label class="block text-center bg-primary text-white font-bold py-4 px-4 rounded-2xl cursor-pointer hover:bg-primary-dark transition-all text-xs tracking-widest uppercase shadow-md">
-                            📂 Import Data
+                            📂 Import Data (CSV)
                             <input type="file" id="fileInput" accept=".csv" class="hidden">
                         </label>
                     </div>
@@ -147,7 +147,7 @@
                     <!-- 2. Status Traffic Light -->
                     <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
                         <div class="flex items-center justify-between mb-3">
-                            <span id="statusText" class="text-[10px] font-extrabold uppercase text-primary-dark tracking-widest">Waiting for data</span>
+                            <span id="statusText" class="text-[10px] font-extrabold uppercase text-primary-dark tracking-widest">Wait for Data</span>
                             <div class="flex gap-1.5">
                                 <div id="lightRed" class="light-bulb light-active-red"></div>
                                 <div id="lightYellow" class="light-bulb"></div>
@@ -166,8 +166,8 @@
                             <select id="filterSize" class="w-full p-3 input-minimal rounded-xl text-xs outline-none shadow-sm">
                                 <option value="1">Raw Data</option>
                                 <option value="7">Low Filter</option>
-                                <option value="15" selected>Standard</option>
-                                <option value="31">High Filter</option>
+                                <option value="15" selected>Standard (15)</option>
+                                <option value="31">High Filter (31)</option>
                             </select>
                         </div>
                         <div>
@@ -224,7 +224,7 @@
                 </div>
 
                 <!-- Charts Container -->
-                <div class="grid grid-cols-1 gap-10">
+                <div class="grid grid-cols-1 gap-10 pb-20">
                     <div class="bg-white rounded-[3rem] p-8 border border-gray-100 shadow-sm">
                         <div id="forceChart" class="w-full h-[400px]"></div>
                     </div>
@@ -241,7 +241,6 @@
         let rawData = [];
         let reportData = {};
 
-        // Traffic Light Logic
         function setSignal(state, progress, text) {
             const red = document.getElementById('lightRed');
             const yellow = document.getElementById('lightYellow');
@@ -287,12 +286,12 @@
             const file = e.target.files[0];
             if (!file) return;
             document.getElementById('fileNameDisplay').innerText = file.name;
-            setSignal('processing', 30, "Reading CSV...");
+            setSignal('processing', 30, "Reading...");
             Papa.parse(file, {
                 header: true, skipEmptyLines: true,
                 complete: function(results) {
                     rawData = results.data;
-                    setSignal('processing', 50, "Synthesizing...");
+                    setSignal('processing', 50, "Parsing...");
                     processBiomechanics(true);
                 }
             });
@@ -302,7 +301,7 @@
 
         function processBiomechanics(isAuto) {
             if (rawData.length === 0) return;
-            setSignal('processing', 80, "Analyzing...");
+            setSignal('processing', 80, "Calculating...");
 
             const filterSize = parseInt(document.getElementById('filterSize').value);
             const threshold = parseFloat(document.getElementById('threshold').value);
@@ -337,7 +336,7 @@
             if (isAuto) {
                 sIdx = sf.findIndex(v => Math.abs(v - bw) > (bw * 0.05));
                 if (sIdx < 0) sIdx = 0;
-                tIdx = sf.findIndex((v, i) => i > sIdx && v < 20);
+                tIdx = sf.findIndex((v, i) => i > sIdx && v < 25);
                 if (tIdx < 0) tIdx = sf.length - 1;
 
                 let v_temp = 0, minV_temp = 0;
@@ -354,16 +353,16 @@
                 document.getElementById('manualSplit').value = t[zIdx].toFixed(3);
                 document.getElementById('manualEnd').value = t[tIdx].toFixed(3);
             } else {
-                sIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualStart').value));
-                zIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualSplit').value));
-                tIdx = t.findIndex(val => val >= parseFloat(document.getElementById('manualEnd').value));
+                sIdx = Math.max(0, t.findIndex(val => val >= parseFloat(document.getElementById('manualStart').value)));
+                zIdx = Math.max(0, t.findIndex(val => val >= parseFloat(document.getElementById('manualSplit').value)));
+                tIdx = Math.max(0, t.findIndex(val => val >= parseFloat(document.getElementById('manualEnd').value)));
             }
 
             const bufferSamples = Math.floor(0.05 / dt);
-            lIdx = sf.findIndex((v, i) => i > tIdx + bufferSamples && v > 20);
+            lIdx = sf.findIndex((v, i) => i > tIdx + bufferSamples && v > 30);
             if (lIdx < 0) lIdx = sf.length - 1;
 
-            // Zeroing flight phase for clean integration
+            // Zeroing Flight Phase
             for (let i = tIdx; i < lIdx; i++) {
                 sf[i] = 0; sl[i] = 0; sr[i] = 0;
             }
@@ -447,7 +446,6 @@
                 return (diff / Math.max(sl[i], sr[i])) * 100;
             });
 
-            // Plotly Configuration
             const layoutBase = {
                 font: { family: 'Open Sans', color: '#1a0f30' },
                 paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
@@ -458,7 +456,7 @@
 
             const eccLabelX = t[sIdx] + (t[zIdx] - t[sIdx]) / 2;
             const conLabelX = t[zIdx] + (t[tIdx] - t[zIdx]) / 2;
-            const maxForce = Math.max(...sf);
+            const maxForceVal = Math.max(...sf);
 
             Plotly.newPlot('forceChart', [
                 { x: t, y: sl, name: 'Left Limb', line: { color: '#818cf8', width: 2 } },
@@ -468,12 +466,12 @@
                 ...layoutBase,
                 title: { text: 'FORCE-TIME ANALYSIS', font: { size: 15, weight: 700 }, x: 0 },
                 shapes: [
-                    { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: maxForce * 1.15, fillcolor: 'rgba(77, 41, 148, 0.05)', line: {width: 0} },
-                    { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: maxForce * 1.15, fillcolor: 'rgba(34, 197, 94, 0.05)', line: {width: 0} }
+                    { type: 'rect', x0: t[sIdx], x1: t[zIdx], y0: 0, y1: maxForceVal * 1.15, fillcolor: 'rgba(77, 41, 148, 0.05)', line: {width: 0} },
+                    { type: 'rect', x0: t[zIdx], x1: t[tIdx], y0: 0, y1: maxForceVal * 1.15, fillcolor: 'rgba(34, 197, 94, 0.05)', line: {width: 0} }
                 ],
                 annotations: [
-                    { x: eccLabelX, y: maxForce * 1.05, text: 'ECCENTRIC', showarrow: false, font: {size: 10, weight: 700, color: '#4d2994'}, xanchor: 'center' },
-                    { x: conLabelX, y: maxForce * 1.05, text: 'CONCENTRIC', showarrow: false, font: {size: 10, weight: 700, color: '#22c55e'}, xanchor: 'center' },
+                    { x: eccLabelX, y: maxForceVal * 1.05, text: 'ECCENTRIC', showarrow: false, font: {size: 10, weight: 700, color: '#4d2994'}, xanchor: 'center' },
+                    { x: conLabelX, y: maxForceVal * 1.05, text: 'CONCENTRIC', showarrow: false, font: {size: 10, weight: 700, color: '#22c55e'}, xanchor: 'center' },
                     { x: t[sIdx], y: bw, text: 'START', showarrow: true, font: {size: 10, weight: 700}, ax: 0, ay: -30 },
                     { x: t[tIdx], y: 100, text: 'TAKE-OFF', showarrow: true, font: {size: 10, color: 'red', weight: 700}, ax: 0, ay: -40 }
                 ]
@@ -492,7 +490,7 @@
                 shapes: [{ type: 'rect', x0: t[0], x1: t[t.length - 1], y0: -threshold, y1: threshold, fillcolor: 'rgba(34, 197, 94, 0.15)', line: {width: 0} }]
             }, { responsive: true, displayModeBar: false });
 
-            setSignal('done', 100, "Analysis Complete");
+            setSignal('done', 100, "Ready");
             document.getElementById('exportBtn').classList.remove('hidden');
         }
 
@@ -521,7 +519,7 @@
         document.getElementById('exportBtn').onclick = () => {
             let csvRows = [
                 ["PRIMA MOTION BIOMECHANICS REPORT"],
-                ["Device: JUMPANZ V1.7 PRO"],
+                ["Device: JUMPANZ V1.7.1 PRO"],
                 ["Date:", new Date().toLocaleString()],
                 [""],
                 ["PHASE", "METRIC", "VALUE", "UNIT"]
